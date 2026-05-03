@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>NANO PRO OPTION DASHBOARD | Advanced Analytics Suite</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome for sidebar icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+            background: #020617;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* ========= SIDEBAR (NAVBAR) ========= */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 270px;
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(12px);
+            background: linear-gradient(165deg, #0a0f1f 0%, #0f172a 100%);
+            border-right: 1px solid #1e293b;
+            box-shadow: 8px 0 28px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a5f3fc, #22c55e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-item {
+            background: #1e293b60;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1rem;
+            color: #cbd5e1;
+            border: 1px solid transparent;
+        }
+
+        .nav-item i {
+            width: 26px;
+            font-size: 1.2rem;
+            color: #22c55e;
+        }
+
+        .nav-item:hover {
+            background: #2d3a60;
+            color: white;
+            border-color: #22c55e80;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: #22c55e20;
+            border-left: 3px solid #22c55e;
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        /* main content */
+        .main-content {
+            transition: margin-left 0.3s ease;
+            padding: 18px 22px;
+            width: 100%;
+        }
+
+        /* top bar with input display + sidebar toggle */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            background: #0a0f1fcc;
+            backdrop-filter: blur(4px);
+            padding: 10px 24px;
+            border-radius: 60px;
+            margin-bottom: 28px;
+            border: 1px solid #1e293b;
+        }
+
+        .menu-btn {
+            background: #22c55e;
+            border: none;
+            font-size: 1.4rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 40px;
+            cursor: pointer;
+            color: #020617;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: #4ade80;
+            transform: scale(0.96);
+        }
+
+        .input-display-area {
+            flex: 1;
+            background: #0f172a;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            word-break: break-word;
+        }
+
+        /* 4 MAIN ADVANCED CARDS with graphics */
+        .cards-premium-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .insight-card {
+            background: #0f172a;
+            border-radius: 28px;
+            padding: 18px 18px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.6);
+            transition: all 0.2s;
+            border: 1px solid #1e293b;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            border-color: #22c55e70;
+            box-shadow: 0 24px 40px -12px #22c55e30;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+        .card-big-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f1f5f9, #a5f3fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 8px 0;
+        }
+
+        .mini-badge {
+            font-size: 0.7rem;
+            background: #00000050;
+            border-radius: 40px;
+            padding: 4px 10px;
+            display: inline-block;
+        }
+
+        .chart-sm {
+            height: 150px;
+            margin-top: 12px;
+            position: relative;
+        }
+
+        /* legacy nano grid (mini cards) */
+        .nano-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
+            margin-top: 28px;
+            background: #0f172a60;
+            border-radius: 24px;
+            padding: 18px;
+        }
+
+        .card-mini {
+            background: #0f172a;
+            padding: 10px 6px;
+            border-radius: 18px;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid #1f2a44;
+        }
+
+        .green {
+            color: #22c55e;
+        }
+
+        .red {
+            color: #ef4444;
+        }
+
+        .value {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 22px;
+            font-size: 12px;
+            border-collapse: collapse;
+            background: #0f172a80;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 10px 6px;
+            text-align: center;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        th {
+            background: #020617;
+            color: #a5f3fc;
+        }
+
+        tr:hover {
+            background: #1e2b3e;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 240px;
+            }
+            .cards-premium-grid {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR (NAVBAR) -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-chart-line"></i> NANO OPTION HUB
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" data-nav="dashboard">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-nav="analysis">
+                <i class="fas fa-chart-pie"></i> <span>Advanced Analysis</span>
+            </div>
+            <div class="nav-item" data-nav="chain">
+                <i class="fas fa-table"></i> <span>Option Chain</span>
+            </div>
+            <div class="nav-item" data-nav="settings">
+                <i class="fas fa-key"></i> <span>Credentials</span>
+            </div>
+        </div>
+        <div style="margin-top: auto; font-size: 11px; color: #475569; text-align: center; padding: 12px;">
+            <i class="fas fa-shield-alt"></i> Real-time derivatives
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <button class="menu-btn" id="menuToggleBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="input-display-area" id="inputDisplayArea">
+                ⚡ Click on sidebar → Token & Client ID will reflect here
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="tokenInput" placeholder="Access Token" style="padding: 8px 14px; border-radius: 40px; background: #0f172a; border: 1px solid #334155; color: white;">
+                <input type="text" id="clientInput" placeholder="Client ID" style="padding: 8px 14px; border-radius: 40px; background: #0f172a; border: 1px solid #334155; color: white;">
+                <button id="startSyncBtn" style="background: #22c55e; border: none; border-radius: 40px; padding: 0 20px; font-weight: bold; cursor: pointer;">START</button>
+            </div>
+        </div>
+
+        <!-- 4 MAIN CARDS (Total OI, Changing OI, PCR ratio, Max Pain) with graphics -->
+        <div class="cards-premium-grid">
+            <!-- Card 1: Total Open Interest Analysis + graphic -->
+            <div class="insight-card">
+                <div class="card-header"><i class="fas fa-chart-line"></i> TOTAL OPEN INTEREST</div>
+                <div class="card-big-value" id="totalOiValue">0</div>
+                <div class="mini-badge">Call OI + Put OI</div>
+                <div class="chart-sm"><canvas id="totalOiChartCanvas" width="400" height="140"></canvas></div>
+                <div style="font-size: 11px; margin-top: 5px;">📊 Aggregated OI trend (historical)</div>
+            </div>
+
+            <!-- Card 2: TOTAL CHANGING OPEN INTEREST ANALYSIS (+graphics) -->
+            <div class="insight-card">
+                <div class="card-header"><i class="fas fa-exchange-alt"></i> TOTAL Δ OPEN INTEREST</div>
+                <div class="card-big-value" id="totalDeltaOiValue">0</div>
+                <div class="mini-badge">Net change (ΔC + ΔP)</div>
+                <div class="chart-sm"><canvas id="deltaOiChartCanvas" width="400" height="140"></canvas></div>
+                <div style="font-size: 11px;">🔥 Momentum indicator</div>
+            </div>
+
+            <!-- Card 3: PCR RATIO with graphics -->
+            <div class="insight-card">
+                <div class="card-header"><i class="fas fa-balance-scale"></i> PCR RATIO</div>
+                <div class="card-big-value" id="pcrValue">0.00</div>
+                <div class="mini-badge">Put/Call Ratio</div>
+                <div class="chart-sm"><canvas id="pcrChartCanvas" width="400" height="140"></canvas></div>
+                <div id="pcrSignalText" style="font-size: 12px;">🟡 Neutral</div>
+            </div>
+
+            <!-- Card 4: MAX PAIN with graphics -->
+            <div class="insight-card">
+                <div class="card-header"><i class="fas fa-skull-crosswalk"></i> MAX PAIN</div>
+                <div class="card-big-value" id="maxPainValue">---</div>
+                <div class="mini-badge">Maximum Pain Strike</div>
+                <div class="chart-sm"><canvas id="maxPainChartCanvas" width="400" height="140"></canvas></div>
+                <div style="font-size: 11px;">🎯 Option writer's equilibrium</div>
+            </div>
+        </div>
+
+        <!-- MINI CARDS (additional metrics) -->
+        <div class="nano-grid">
+            <div class="card-mini">PCR<div id="pcrMini" class="value"></div></div>
+            <div class="card-mini">Call OI<div id="call_oi" class="value red"></div></div>
+            <div class="card-mini">Put OI<div id="put_oi" class="value green"></div></div>
+            <div class="card-mini">Δ Call<div id="call_change" class="value"></div></div>
+            <div class="card-mini">Δ Put<div id="put_change" class="value"></div></div>
+            <div class="card-mini">Max Pain<div id="max_pain_mini" class="value"></div></div>
+            <div class="card-mini">Support<div id="support" class="value green"></div></div>
+            <div class="card-mini">Resistance<div id="resistance" class="value red"></div></div>
+            <div class="card-mini">Trend<div id="signal" class="value"></div></div>
+            <div class="card-mini">AI Bias<div id="ai_signal" class="value"></div></div>
+        </div>
+
+        <!-- OPTION CHAIN TABLE -->
+        <div style="overflow-x: auto;">
+            <table id="optionChainTable">
+                <thead>
+                    <tr><th>Strike</th><th>Call OI</th><th>Put OI</th><th>ΔC</th><th>ΔP</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+let token = "";
+let client_id = "";
+
+let totalOiChart, deltaOiChart, pcrChart, maxPainChart;
+
+function formatNumber(num) {
+    if (num > 10000000) return (num/10000000).toFixed(1)+"Cr";
+    if (num > 100000) return (num/100000).toFixed(1)+"L";
+    if (num > 1000) return (num/1000).toFixed(1)+"K";
+    return num;
+}
+
+function startApp() {
+    token = document.getElementById("tokenInput").value.trim();
+    client_id = document.getElementById("clientInput").value.trim();
+
+    if (!token || !client_id) {
+        alert("Enter Token & Client ID");
+        return;
+    }
+
+    fetchData();
+    setInterval(fetchData, 5000);
+}
+
+function fetchData() {
+
+    fetch("/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, client_id })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.error) {
+            console.log(data.error);
+            return;
+        }
+
+        updateUI(data);
+
+    })
+    .catch(err => console.log(err));
+}
+
+function updateUI(data) {
+
+    // ========= TOP METRICS =========
+    document.getElementById("pcrValue").innerText = data.pcr;
+    document.getElementById("pcrMini").innerText = data.pcr;
+
+    document.getElementById("call_oi").innerText = formatNumber(data.call_oi);
+    document.getElementById("put_oi").innerText = formatNumber(data.put_oi);
+
+    document.getElementById("call_change").innerText = formatNumber(data.call_change_oi);
+    document.getElementById("put_change").innerText = formatNumber(data.put_change_oi);
+
+    document.getElementById("maxPainValue").innerText = data.max_pain;
+    document.getElementById("max_pain_mini").innerText = data.max_pain;
+
+    document.getElementById("signal").innerText = data.signal;
+    document.getElementById("ai_signal").innerText = data.ai_signal;
+
+    document.getElementById("support").innerText = data.support;
+    document.getElementById("resistance").innerText = data.resistance;
+
+    let totalOI = data.call_oi + data.put_oi;
+    let totalDelta = data.call_change_oi + data.put_change_oi;
+
+    document.getElementById("totalOiValue").innerText = formatNumber(totalOI);
+    document.getElementById("totalDeltaOiValue").innerText = formatNumber(totalDelta);
+
+    // ========= FILTER ZERO STRIKES =========
+    let filtered = data.data.filter(r => r.call_oi > 0 || r.put_oi > 0);
+
+    // ========= TABLE =========
+    let rows = "";
+
+    filtered.forEach(r => {
+
+        let highlight = "";
+
+        if (r.strike == data.support) highlight = "style='background:#064e3b40'";
+        if (r.strike == data.resistance) highlight = "style='background:#7f1d1d40'";
+
+        rows += `
+        <tr ${highlight}>
+            <td><b>${r.strike}</b></td>
+            <td class="red">${formatNumber(r.call_oi)}</td>
+            <td class="green">${formatNumber(r.put_oi)}</td>
+            <td class="${r.call_change>=0?'green':'red'}">${formatNumber(r.call_change)}</td>
+            <td class="${r.put_change>=0?'green':'red'}">${formatNumber(r.put_change)}</td>
+        </tr>
+        `;
+    });
+
+    document.getElementById("tableBody").innerHTML = rows;
+
+    // ========= CHART DATA =========
+    let strikes = filtered.map(r => r.strike);
+    let callOI = filtered.map(r => r.call_oi);
+    let putOI = filtered.map(r => r.put_oi);
+
+    // ========= TOTAL OI CHART =========
+    if (totalOiChart) totalOiChart.destroy();
+    totalOiChart = new Chart(document.getElementById("totalOiChartCanvas"), {
+        type: "bar",
+        data: {
+            labels: strikes,
+            datasets: [
+                { label: "Call OI", data: callOI, backgroundColor: "#ef4444" },
+                { label: "Put OI", data: putOI, backgroundColor: "#22c55e" }
+            ]
+        }
+    });
+
+    // ========= DELTA OI CHART =========
+    if (deltaOiChart) deltaOiChart.destroy();
+    deltaOiChart = new Chart(document.getElementById("deltaOiChartCanvas"), {
+        type: "line",
+        data: {
+            labels: strikes,
+            datasets: [
+                {
+                    label: "Call ΔOI",
+                    data: filtered.map(r => r.call_change),
+                    borderColor: "#ef4444",
+                    fill: false
+                },
+                {
+                    label: "Put ΔOI",
+                    data: filtered.map(r => r.put_change),
+                    borderColor: "#22c55e",
+                    fill: false
+                }
+            ]
+        }
+    });
+
+    // ========= PCR CHART =========
+    if (pcrChart) pcrChart.destroy();
+    pcrChart = new Chart(document.getElementById("pcrChartCanvas"), {
+        type: "line",
+        data: {
+            labels: strikes,
+            datasets: [{
+                label: "PCR Trend",
+                data: strikes.map(() => data.pcr),
+                borderColor: "#38bdf8"
+            }]
+        }
+    });
+
+    // ========= MAX PAIN =========
+    if (maxPainChart) maxPainChart.destroy();
+    maxPainChart = new Chart(document.getElementById("maxPainChartCanvas"), {
+        type: "bar",
+        data: {
+            labels: strikes,
+            datasets: [{
+                label: "Max Pain Level",
+                data: strikes.map(s => s == data.max_pain ? 1 : 0),
+                backgroundColor: "#a855f7"
+            }]
+        }
+    });
+}
+
+
+// START BUTTON
+document.getElementById("startSyncBtn").addEventListener("click", startApp);
+</script>
+</body>
+</html>
