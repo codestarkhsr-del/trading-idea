@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NANO PRO OPTION DASHBOARD | Advanced Analytics Suite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>NANO CORE | options intelligence</title>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Font Awesome for sidebar icons -->
+    <!-- Font Awesome 6 (minimal) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- ultra-compact font system -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,31 +18,32 @@
         }
 
         body {
-            font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-            background: #020617;
-            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', monospace;
+            background: #03050b;
+            background-image: radial-gradient(circle at 15% 30%, rgba(0, 255, 128, 0.02) 0%, #03050b 90%);
+            color: #cbd5e6;
             overflow-x: hidden;
+            font-size: 13px;
+            letter-spacing: -0.2px;
         }
 
-        /* ========= SIDEBAR (NAVBAR) ========= */
+        /* ----- NANO SIDEBAR: micro, dense ----- */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            width: 270px;
-            background: rgba(15, 23, 42, 0.96);
-            backdrop-filter: blur(12px);
-            background: linear-gradient(165deg, #0a0f1f 0%, #0f172a 100%);
-            border-right: 1px solid #1e293b;
-            box-shadow: 8px 0 28px rgba(0, 0, 0, 0.5);
+            width: 240px;
+            background: rgba(2, 5, 12, 0.96);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(0, 255, 128, 0.2);
             z-index: 1000;
             transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            padding: 28px 18px;
+            transition: transform 0.25s ease;
+            padding: 20px 12px;
             display: flex;
             flex-direction: column;
-            gap: 32px;
+            gap: 20px;
         }
 
         .sidebar.open {
@@ -48,523 +51,508 @@
         }
 
         .sidebar-header {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #a5f3fc, #22c55e);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(120deg, #a0f0c0, #22c55e);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 12px;
-            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px dashed #22c55e40;
+            padding-bottom: 8px;
         }
 
         .nav-menu {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
 
         .nav-item {
-            background: #1e293b60;
-            padding: 12px 18px;
-            border-radius: 18px;
-            font-weight: 500;
+            background: rgba(20, 30, 45, 0.5);
+            padding: 8px 12px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 14px;
-            font-size: 1rem;
-            color: #cbd5e1;
-            border: 1px solid transparent;
+            gap: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: 0.15s;
         }
 
         .nav-item i {
-            width: 26px;
-            font-size: 1.2rem;
-            color: #22c55e;
-        }
-
-        .nav-item:hover {
-            background: #2d3a60;
-            color: white;
-            border-color: #22c55e80;
-            transform: translateX(5px);
+            width: 20px;
+            font-size: 0.85rem;
         }
 
         .nav-item.active {
             background: #22c55e20;
-            border-left: 3px solid #22c55e;
-            color: #22c55e;
-            font-weight: 600;
+            border-left: 2px solid #22c55e;
+            color: #bbf7d0;
         }
 
-        /* main content */
+        /* main area */
         .main-content {
-            transition: margin-left 0.3s ease;
-            padding: 18px 22px;
+            padding: 12px 12px 24px;
             width: 100%;
         }
 
-        /* top bar with input display + sidebar toggle */
+        /* top bar - nano style */
         .top-bar {
             display: flex;
             align-items: center;
-            gap: 18px;
+            justify-content: space-between;
+            gap: 8px;
             flex-wrap: wrap;
-            background: #0a0f1fcc;
-            backdrop-filter: blur(4px);
-            padding: 10px 24px;
-            border-radius: 60px;
-            margin-bottom: 28px;
-            border: 1px solid #1e293b;
+            background: #0a0f1a;
+            border-radius: 28px;
+            padding: 6px 12px;
+            margin-bottom: 22px;
+            border: 0.5px solid #22c55e30;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
         }
 
         .menu-btn {
-            background: #22c55e;
+            width: 34px;
+            height: 34px;
+            border-radius: 30px;
+            background: #0f172a;
             border: none;
-            font-size: 1.4rem;
-            width: 44px;
-            height: 44px;
-            border-radius: 40px;
+            color: #22c55e;
+            font-size: 1rem;
             cursor: pointer;
-            color: #020617;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .menu-btn:hover {
-            background: #4ade80;
-            transform: scale(0.96);
         }
 
         .input-display-area {
-            flex: 1;
-            background: #0f172a;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-family: 'Fira Code', monospace;
+            font-size: 0.65rem;
             font-weight: 500;
-            font-size: 0.85rem;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            word-break: break-word;
+            background: #010409;
+            padding: 6px 12px;
+            border-radius: 28px;
+            flex: 1;
+            white-space: nowrap;
+            overflow-x: auto;
+            color: #8b9bb0;
         }
 
-        /* 4 MAIN ADVANCED CARDS with graphics */
+        .auth-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .auth-group input {
+            background: #0f172a;
+            border: 0.5px solid #2a374b;
+            border-radius: 40px;
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            width: 130px;
+            color: white;
+        }
+
+        #startSyncBtn {
+            background: #22c55e;
+            border: none;
+            border-radius: 40px;
+            padding: 0 16px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: -0.2px;
+            cursor: pointer;
+            color: #020617;
+        }
+
+        /* ----- NANO CARD GRID: micro-density ----- */
         .cards-premium-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .insight-card {
-            background: #0f172a;
-            border-radius: 28px;
-            padding: 18px 18px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.6);
-            transition: all 0.2s;
-            border: 1px solid #1e293b;
-        }
-
-        .insight-card:hover {
-            transform: translateY(-5px);
-            border-color: #22c55e70;
-            box-shadow: 0 24px 40px -12px #22c55e30;
+            background: rgba(2, 8, 18, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 12px 14px;
+            border: 0.5px solid rgba(34, 197, 94, 0.25);
+            transition: all 0.1s linear;
         }
 
         .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #94a3b8;
-            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: #64748b;
+            margin-bottom: 6px;
         }
 
         .card-big-value {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #f1f5f9, #a5f3fc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin: 8px 0;
+            font-size: 1.7rem;
+            font-weight: 700;
+            font-family: 'Inter', monospace;
+            color: #e2e8f0;
+            line-height: 1.2;
         }
 
         .mini-badge {
-            font-size: 0.7rem;
-            background: #00000050;
-            border-radius: 40px;
-            padding: 4px 10px;
+            font-size: 0.6rem;
+            color: #22c55e;
+            background: #22c55e15;
             display: inline-block;
+            padding: 2px 10px;
+            border-radius: 40px;
+            margin: 6px 0 4px;
         }
 
-        .chart-sm {
-            height: 150px;
-            margin-top: 12px;
-            position: relative;
+        .chart-sm canvas {
+            max-height: 95px;
+            width: 100%;
         }
 
-        /* legacy nano grid (mini cards) */
+        /* NANO METRICS: ultra compact grid */
         .nano-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 10px;
-            margin-top: 28px;
-            background: #0f172a60;
-            border-radius: 24px;
-            padding: 18px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 18px 0 20px;
         }
 
         .card-mini {
-            background: #0f172a;
-            padding: 10px 6px;
+            background: #0a0f1c;
             border-radius: 18px;
+            padding: 8px 5px;
             text-align: center;
-            font-size: 12px;
-            border: 1px solid #1f2a44;
+            font-size: 0.65rem;
+            font-weight: 600;
+            border: 0.5px solid #1e293b;
+            transition: 0.05s linear;
         }
 
-        .green {
-            color: #22c55e;
+        .card-mini .value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 4px;
+            font-family: 'Monaco', monospace;
         }
 
-        .red {
-            color: #ef4444;
-        }
+        .value.green { color: #4ade80; }
+        .value.red { color: #fb7185; }
 
-        .value {
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 5px;
+        /* table nano */
+        .table-nano {
+            overflow-x: auto;
+            border-radius: 20px;
+            background: #02060e60;
         }
 
         table {
             width: 100%;
-            margin-top: 22px;
-            font-size: 12px;
             border-collapse: collapse;
-            background: #0f172a80;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        th,
-        td {
-            padding: 10px 6px;
-            text-align: center;
-            border-bottom: 1px solid #1e293b;
+            font-size: 0.68rem;
         }
 
         th {
-            background: #020617;
-            color: #a5f3fc;
+            background: #0f172a;
+            padding: 10px 5px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #94a3b8;
         }
 
-        tr:hover {
-            background: #1e2b3e;
+        td {
+            padding: 8px 5px;
+            border-bottom: 0.5px solid #1e293b;
         }
 
-        canvas {
-            max-width: 100%;
+        /* responsive breakpoints: everything nano flexible */
+        @media (min-width: 520px) {
+            .cards-premium-grid { grid-template-columns: repeat(2, 1fr); }
+            .nano-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (min-width: 780px) {
+            .cards-premium-grid { grid-template-columns: repeat(3, 1fr); }
+            .nano-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .main-content { margin-left: 240px; padding: 20px 24px; }
+            .sidebar { transform: translateX(0); width: 240px; }
+            .cards-premium-grid { grid-template-columns: repeat(4, 1fr); }
+            .nano-grid { grid-template-columns: repeat(5, 1fr); }
+            .menu-btn { display: none; }
+        }
+        @media (max-width: 1023px) {
+            .sidebar { width: 250px; }
         }
 
-        @media (max-width: 700px) {
-            .sidebar {
-                width: 240px;
-            }
-            .cards-premium-grid {
-                gap: 16px;
-            }
+        .red { color: #fc8181; }
+        .green { color: #6eeb8b; }
+        footer {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 0.55rem;
+            opacity: 0.5;
+        }
+        i, .fas {
+            font-size: 0.75rem;
+        }
+        button, input {
+            font-family: inherit;
         }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR (NAVBAR) -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-chart-line"></i> NANO OPTION HUB
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-microchip"></i> N·CORE
+    </div>
+    <div class="nav-menu">
+        <div class="nav-item active" data-nav="dashboard"><i class="fas fa-chart-simple"></i> <span>Dashboard</span></div>
+        <div class="nav-item" data-nav="analysis"><i class="fas fa-chart-line"></i> <span>Analysis</span></div>
+        <div class="nav-item" data-nav="chain"><i class="fas fa-grid-2"></i> <span>Chain</span></div>
+        <div class="nav-item" data-nav="settings"><i class="fas fa-key"></i> <span>Creds</span></div>
+    </div>
+    <div style="margin-top: auto; font-size: 9px; text-align: center; padding: 12px 0; color: #2d4a3a;">
+        <i class="fas fa-bolt"></i> nano realtime
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="menu-btn" id="menuToggleBtn"><i class="fas fa-bars"></i></button>
+        <div class="input-display-area" id="inputDisplayArea">
+            ⚡ nano terminal · token ready
         </div>
-        <div class="nav-menu">
-            <div class="nav-item active" data-nav="dashboard">
-                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
-            </div>
-            <div class="nav-item" data-nav="analysis">
-                <i class="fas fa-chart-pie"></i> <span>Advanced Analysis</span>
-            </div>
-            <div class="nav-item" data-nav="chain">
-                <i class="fas fa-table"></i> <span>Option Chain</span>
-            </div>
-            <div class="nav-item" data-nav="settings">
-                <i class="fas fa-key"></i> <span>Credentials</span>
-            </div>
-        </div>
-        <div style="margin-top: auto; font-size: 11px; color: #475569; text-align: center; padding: 12px;">
-            <i class="fas fa-shield-alt"></i> Real-time derivatives
+        <div class="auth-group">
+            <input type="text" id="tokenInput" placeholder="Access Token" autocomplete="off">
+            <input type="text" id="clientInput" placeholder="Client ID" autocomplete="off">
+            <button id="startSyncBtn"><i class="fas fa-play"></i> START</button>
         </div>
     </div>
 
-    <div class="main-content" id="mainContent">
-        <div class="top-bar">
-            <button class="menu-btn" id="menuToggleBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="input-display-area" id="inputDisplayArea">
-                ⚡ Click on sidebar → Token & Client ID will reflect here
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="tokenInput" placeholder="Access Token" style="padding: 8px 14px; border-radius: 40px; background: #0f172a; border: 1px solid #334155; color: white;">
-                <input type="text" id="clientInput" placeholder="Client ID" style="padding: 8px 14px; border-radius: 40px; background: #0f172a; border: 1px solid #334155; color: white;">
-                <button id="startSyncBtn" style="background: #22c55e; border: none; border-radius: 40px; padding: 0 20px; font-weight: bold; cursor: pointer;">START</button>
-            </div>
+    <!-- 4 main nano insight cards -->
+    <div class="cards-premium-grid">
+        <div class="insight-card">
+            <div class="card-header"><i class="fas fa-chart-column"></i> TOTAL OI</div>
+            <div class="card-big-value" id="totalOiValue">0</div>
+            <div class="mini-badge">call+put OI</div>
+            <div class="chart-sm"><canvas id="totalOiChartCanvas" width="400" height="90"></canvas></div>
         </div>
-
-        <!-- 4 MAIN CARDS (Total OI, Changing OI, PCR ratio, Max Pain) with graphics -->
-        <div class="cards-premium-grid">
-            <!-- Card 1: Total Open Interest Analysis + graphic -->
-            <div class="insight-card">
-                <div class="card-header"><i class="fas fa-chart-line"></i> TOTAL OPEN INTEREST</div>
-                <div class="card-big-value" id="totalOiValue">0</div>
-                <div class="mini-badge">Call OI + Put OI</div>
-                <div class="chart-sm"><canvas id="totalOiChartCanvas" width="400" height="140"></canvas></div>
-                <div style="font-size: 11px; margin-top: 5px;">📊 Aggregated OI trend (historical)</div>
-            </div>
-
-            <!-- Card 2: TOTAL CHANGING OPEN INTEREST ANALYSIS (+graphics) -->
-            <div class="insight-card">
-                <div class="card-header"><i class="fas fa-exchange-alt"></i> TOTAL Δ OPEN INTEREST</div>
-                <div class="card-big-value" id="totalDeltaOiValue">0</div>
-                <div class="mini-badge">Net change (ΔC + ΔP)</div>
-                <div class="chart-sm"><canvas id="deltaOiChartCanvas" width="400" height="140"></canvas></div>
-                <div style="font-size: 11px;">🔥 Momentum indicator</div>
-            </div>
-
-            <!-- Card 3: PCR RATIO with graphics -->
-            <div class="insight-card">
-                <div class="card-header"><i class="fas fa-balance-scale"></i> PCR RATIO</div>
-                <div class="card-big-value" id="pcrValue">0.00</div>
-                <div class="mini-badge">Put/Call Ratio</div>
-                <div class="chart-sm"><canvas id="pcrChartCanvas" width="400" height="140"></canvas></div>
-                <div id="pcrSignalText" style="font-size: 12px;">🟡 Neutral</div>
-            </div>
-
-            <!-- Card 4: MAX PAIN with graphics -->
-            <div class="insight-card">
-                <div class="card-header"><i class="fas fa-skull-crosswalk"></i> MAX PAIN</div>
-                <div class="card-big-value" id="maxPainValue">---</div>
-                <div class="mini-badge">Maximum Pain Strike</div>
-                <div class="chart-sm"><canvas id="maxPainChartCanvas" width="400" height="140"></canvas></div>
-                <div style="font-size: 11px;">🎯 Option writer's equilibrium</div>
-            </div>
+        <div class="insight-card">
+            <div class="card-header"><i class="fas fa-waveform"></i> Δ OPEN INT</div>
+            <div class="card-big-value" id="totalDeltaOiValue">0</div>
+            <div class="mini-badge">net momentum</div>
+            <div class="chart-sm"><canvas id="deltaOiChartCanvas"></canvas></div>
         </div>
-
-        <!-- MINI CARDS (additional metrics) -->
-        <div class="nano-grid">
-            <div class="card-mini">PCR<div id="pcrMini" class="value"></div></div>
-            <div class="card-mini">Call OI<div id="call_oi" class="value red"></div></div>
-            <div class="card-mini">Put OI<div id="put_oi" class="value green"></div></div>
-            <div class="card-mini">Δ Call<div id="call_change" class="value"></div></div>
-            <div class="card-mini">Δ Put<div id="put_change" class="value"></div></div>
-            <div class="card-mini">Max Pain<div id="max_pain_mini" class="value"></div></div>
-            <div class="card-mini">Support<div id="support" class="value green"></div></div>
-            <div class="card-mini">Resistance<div id="resistance" class="value red"></div></div>
-            <div class="card-mini">Trend<div id="signal" class="value"></div></div>
-            <div class="card-mini">AI Bias<div id="ai_signal" class="value"></div></div>
+        <div class="insight-card">
+            <div class="card-header"><i class="fas fa-divide"></i> PCR RATIO</div>
+            <div class="card-big-value" id="pcrValue">0.00</div>
+            <div class="mini-badge">put/call</div>
+            <div class="chart-sm"><canvas id="pcrChartCanvas"></canvas></div>
+            <div id="pcrSignalText" style="font-size: 9px; margin-top: 6px;">⚫ nano neutral</div>
         </div>
-
-        <!-- OPTION CHAIN TABLE -->
-        <div style="overflow-x: auto;">
-            <table id="optionChainTable">
-                <thead>
-                    <tr><th>Strike</th><th>Call OI</th><th>Put OI</th><th>ΔC</th><th>ΔP</th></tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+        <div class="insight-card">
+            <div class="card-header"><i class="fas fa-bullseye"></i> MAX PAIN</div>
+            <div class="card-big-value" id="maxPainValue">---</div>
+            <div class="mini-badge">option writer eq</div>
+            <div class="chart-sm"><canvas id="maxPainChartCanvas"></canvas></div>
         </div>
     </div>
 
-    <script>
-let token = "";
-let client_id = "";
+    <!-- micro cards grid -->
+    <div class="nano-grid">
+        <div class="card-mini">PCR<div id="pcrMini" class="value">0.00</div></div>
+        <div class="card-mini">📞 CALL OI<div id="call_oi" class="value red">0</div></div>
+        <div class="card-mini">📉 PUT OI<div id="put_oi" class="value green">0</div></div>
+        <div class="card-mini">Δ CALL<div id="call_change" class="value">0</div></div>
+        <div class="card-mini">Δ PUT<div id="put_change" class="value">0</div></div>
+        <div class="card-mini">🎯 MAX PAIN<div id="max_pain_mini" class="value">-</div></div>
+        <div class="card-mini">🛡️ SUP<div id="support" class="value green">-</div></div>
+        <div class="card-mini">⚔️ RES<div id="resistance" class="value red">-</div></div>
+        <div class="card-mini">📈 TREND<div id="signal" class="value">-</div></div>
+        <div class="card-mini">🧠 AI<div id="ai_signal" class="value">-</div></div>
+    </div>
 
-let totalOiChart, deltaOiChart, pcrChart, maxPainChart;
+    <!-- nano option chain -->
+    <div style="overflow-x: auto; border-radius: 18px; background: #03060e; padding: 2px 0;">
+        <table id="optionChainTable">
+            <thead><tr><th>STRIKE</th><th>CALL OI</th><th>PUT OI</th><th>ΔC</th><th>ΔP</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <footer><i class="fas fa-microchip"></i> NANO ENGINE · derivatives core</footer>
+</div>
 
-function formatNumber(num) {
-    if (num > 10000000) return (num/10000000).toFixed(1)+"Cr";
-    if (num > 100000) return (num/100000).toFixed(1)+"L";
-    if (num > 1000) return (num/1000).toFixed(1)+"K";
-    return num;
-}
+<script>
+    let token = "", client_id = "";
+    let totalOiChart, deltaOiChart, pcrChart, maxPainChart;
+    let intervalRef = null;
 
-function startApp() {
-    token = document.getElementById("tokenInput").value.trim();
-    client_id = document.getElementById("clientInput").value.trim();
-
-    if (!token || !client_id) {
-        alert("Enter Token & Client ID");
-        return;
+    function formatNumber(num) {
+        if (num === null || num === undefined) return "0";
+        let n = Number(num);
+        if (isNaN(n)) return "0";
+        if (n > 1e7) return (n/1e7).toFixed(1) + "Cr";
+        if (n > 1e5) return (n/1e5).toFixed(1) + "L";
+        if (n > 1e3) return (n/1e3).toFixed(1) + "K";
+        return n.toLocaleString();
     }
 
-    fetchData();
-    setInterval(fetchData, 5000);
-}
-
-function fetchData() {
-
-    fetch("/data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, client_id })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if (data.error) {
-            console.log(data.error);
+    function startApp() {
+        token = document.getElementById("tokenInput").value.trim();
+        client_id = document.getElementById("clientInput").value.trim();
+        if (!token || !client_id) {
+            alert("nano alert: provide token & client id");
             return;
         }
+        document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-sync-alt fa-fw"></i> live streaming`;
+        if (intervalRef) clearInterval(intervalRef);
+        fetchData();
+        intervalRef = setInterval(fetchData, 5000);
+    }
 
-        updateUI(data);
+    function fetchData() {
+        fetch("/data", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, client_id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                console.warn("nano err:", data.error);
+                document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-exclamation-triangle"></i> api: ${data.error.substring(0, 35)}`;
+                return;
+            }
+            updateUI(data);
+            document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-circle-check"></i> nano @ ${new Date().toLocaleTimeString()}`;
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-plug"></i> reconnect ...`;
+        });
+    }
 
-    })
-    .catch(err => console.log(err));
-}
+    function updateUI(data) {
+        // Display core metrics
+        document.getElementById("pcrValue").innerText = data.pcr.toFixed(2);
+        document.getElementById("pcrMini").innerText = data.pcr.toFixed(2);
+        
+        let callOi = data.call_oi || 0;
+        let putOi = data.put_oi || 0;
+        document.getElementById("call_oi").innerText = formatNumber(callOi);
+        document.getElementById("put_oi").innerText = formatNumber(putOi);
+        document.getElementById("call_change").innerHTML = formatNumber(data.call_change_oi);
+        document.getElementById("put_change").innerHTML = formatNumber(data.put_change_oi);
+        document.getElementById("maxPainValue").innerText = data.max_pain;
+        document.getElementById("max_pain_mini").innerHTML = data.max_pain;
+        document.getElementById("signal").innerHTML = data.signal;
+        document.getElementById("ai_signal").innerHTML = data.ai_signal;
+        document.getElementById("support").innerHTML = data.support;
+        document.getElementById("resistance").innerHTML = data.resistance;
 
-function updateUI(data) {
+        let totalOI = callOi + putOi;
+        let totalDelta = (data.call_change_oi || 0) + (data.put_change_oi || 0);
+        document.getElementById("totalOiValue").innerText = formatNumber(totalOI);
+        document.getElementById("totalDeltaOiValue").innerText = formatNumber(totalDelta);
 
-    // ========= TOP METRICS =========
-    document.getElementById("pcrValue").innerText = data.pcr;
-    document.getElementById("pcrMini").innerText = data.pcr;
+        let pcrVal = data.pcr;
+        let pcrElem = document.getElementById("pcrSignalText");
+        if (pcrVal > 1.2) pcrElem.innerHTML = "🔻 bearish PCR";
+        else if (pcrVal < 0.8) pcrElem.innerHTML = "🟢 bullish PCR";
+        else pcrElem.innerHTML = "⚪ neutral PCR";
 
-    document.getElementById("call_oi").innerText = formatNumber(data.call_oi);
-    document.getElementById("put_oi").innerText = formatNumber(data.put_oi);
+        // chain filter
+        let rawData = data.data || [];
+        let filtered = rawData.filter(r => (r.call_oi > 0 || r.put_oi > 0) && r.strike != null);
+        if (filtered.length === 0 && rawData.length) filtered = rawData.slice(0, 22).map(r => ({ ...r, call_oi: r.call_oi || 0, put_oi: r.put_oi || 0, call_change: r.call_change || 0, put_change: r.put_change || 0 }));
+        
+        let rows = "";
+        filtered.forEach(r => {
+            let addStyle = "";
+            if (r.strike == data.support) addStyle = "style='background: #064e3b30; border-left: 2px solid #22c55e;'";
+            if (r.strike == data.resistance) addStyle = "style='background: #7f1d1d30; border-left: 2px solid #f97316;'";
+            rows += `<tr ${addStyle}>
+                <td><b>${r.strike}</b></td>
+                <td class="red">${formatNumber(r.call_oi)}</td>
+                <td class="green">${formatNumber(r.put_oi)}</td>
+                <td class="${(r.call_change||0) >=0 ? 'green' : 'red'}">${formatNumber(r.call_change)}</td>
+                <td class="${(r.put_change||0) >=0 ? 'green' : 'red'}">${formatNumber(r.put_change)}</td>
+            </tr>`;
+        });
+        document.getElementById("tableBody").innerHTML = rows || "<tr><td colspan='5' style='text-align:center'>— no chain data —</td></tr>";
 
-    document.getElementById("call_change").innerText = formatNumber(data.call_change_oi);
-    document.getElementById("put_change").innerText = formatNumber(data.put_change_oi);
+        let strikes = filtered.map(s => s.strike);
+        let callVals = filtered.map(s => s.call_oi || 0);
+        let putVals = filtered.map(s => s.put_oi || 0);
+        let callDeltaArr = filtered.map(s => s.call_change || 0);
+        let putDeltaArr = filtered.map(s => s.put_change || 0);
 
-    document.getElementById("maxPainValue").innerText = data.max_pain;
-    document.getElementById("max_pain_mini").innerText = data.max_pain;
+        if (totalOiChart) totalOiChart.destroy();
+        totalOiChart = new Chart(document.getElementById("totalOiChartCanvas"), {
+            type: "bar",
+            data: { labels: strikes, datasets: [{ label: "Call", data: callVals, backgroundColor: "#f97316", borderRadius: 4 }, { label: "Put", data: putVals, backgroundColor: "#22c55e", borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { font: { size: 8, weight: 'bold' }, color: '#9ca3af' } } } }
+        });
 
-    document.getElementById("signal").innerText = data.signal;
-    document.getElementById("ai_signal").innerText = data.ai_signal;
+        if (deltaOiChart) deltaOiChart.destroy();
+        deltaOiChart = new Chart(document.getElementById("deltaOiChartCanvas"), {
+            type: "line",
+            data: { labels: strikes, datasets: [{ label: "Δ Call", data: callDeltaArr, borderColor: "#fb923c", borderWidth: 1.5, pointRadius: 1 }, { label: "Δ Put", data: putDeltaArr, borderColor: "#4ade80", borderWidth: 1.5, pointRadius: 1 }] },
+            options: { responsive: true, plugins: { legend: { labels: { font: { size: 8 }, color: '#cbd5e6' } } } }
+        });
 
-    document.getElementById("support").innerText = data.support;
-    document.getElementById("resistance").innerText = data.resistance;
+        if (pcrChart) pcrChart.destroy();
+        let pcrLine = strikes.map(() => data.pcr);
+        pcrChart = new Chart(document.getElementById("pcrChartCanvas"), {
+            type: "line",
+            data: { labels: strikes, datasets: [{ label: "PCR", data: pcrLine, borderColor: "#38bdf8", borderWidth: 1.5, pointRadius: 1.2, fill: false }] },
+            options: { responsive: true, plugins: { tooltip: { callbacks: { label: (ctx) => `PCR: ${ctx.raw.toFixed(2)}` } } } }
+        });
 
-    let totalOI = data.call_oi + data.put_oi;
-    let totalDelta = data.call_change_oi + data.put_change_oi;
+        if (maxPainChart) maxPainChart.destroy();
+        let maxPainIndicator = strikes.map(s => (s == data.max_pain ? 1.0 : 0.15));
+        maxPainChart = new Chart(document.getElementById("maxPainChartCanvas"), {
+            type: "bar",
+            data: { labels: strikes, datasets: [{ label: "Pain", data: maxPainIndicator, backgroundColor: "#c084fc", borderRadius: 6 }] },
+            options: { responsive: true, scales: { y: { display: false, max: 1.1 } }, plugins: { tooltip: { callbacks: { label: (ctx) => ctx.raw > 0.9 ? `⚡ MAX PAIN: ${data.max_pain}` : "strike" } } } }
+        });
+    }
 
-    document.getElementById("totalOiValue").innerText = formatNumber(totalOI);
-    document.getElementById("totalDeltaOiValue").innerText = formatNumber(totalDelta);
-
-    // ========= FILTER ZERO STRIKES =========
-    let filtered = data.data.filter(r => r.call_oi > 0 || r.put_oi > 0);
-
-    // ========= TABLE =========
-    let rows = "";
-
-    filtered.forEach(r => {
-
-        let highlight = "";
-
-        if (r.strike == data.support) highlight = "style='background:#064e3b40'";
-        if (r.strike == data.resistance) highlight = "style='background:#7f1d1d40'";
-
-        rows += `
-        <tr ${highlight}>
-            <td><b>${r.strike}</b></td>
-            <td class="red">${formatNumber(r.call_oi)}</td>
-            <td class="green">${formatNumber(r.put_oi)}</td>
-            <td class="${r.call_change>=0?'green':'red'}">${formatNumber(r.call_change)}</td>
-            <td class="${r.put_change>=0?'green':'red'}">${formatNumber(r.put_change)}</td>
-        </tr>
-        `;
+    // UI interactions
+    document.getElementById("startSyncBtn").addEventListener("click", startApp);
+    const menuBtn = document.getElementById("menuToggleBtn");
+    const sidebar = document.getElementById("sidebar");
+    menuBtn.addEventListener("click", () => sidebar.classList.toggle("open"));
+    
+    if (window.innerWidth < 1024) {
+        document.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("open") && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove("open");
+            }
+        });
+    }
+    
+    const navButtons = document.querySelectorAll(".nav-item");
+    navButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            navButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            if (window.innerWidth < 1024) sidebar.classList.remove("open");
+            const navId = btn.getAttribute("data-nav");
+            if (navId === "chain") document.querySelector("table").scrollIntoView({ behavior: "smooth", block: "start" });
+            else if (navId === "dashboard") window.scrollTo({ top: 0, behavior: "smooth" });
+            else if (navId === "analysis") document.querySelector(".cards-premium-grid").scrollIntoView({ behavior: "smooth" });
+            else if (navId === "settings") document.getElementById("tokenInput").focus();
+        });
     });
-
-    document.getElementById("tableBody").innerHTML = rows;
-
-    // ========= CHART DATA =========
-    let strikes = filtered.map(r => r.strike);
-    let callOI = filtered.map(r => r.call_oi);
-    let putOI = filtered.map(r => r.put_oi);
-
-    // ========= TOTAL OI CHART =========
-    if (totalOiChart) totalOiChart.destroy();
-    totalOiChart = new Chart(document.getElementById("totalOiChartCanvas"), {
-        type: "bar",
-        data: {
-            labels: strikes,
-            datasets: [
-                { label: "Call OI", data: callOI, backgroundColor: "#ef4444" },
-                { label: "Put OI", data: putOI, backgroundColor: "#22c55e" }
-            ]
-        }
-    });
-
-    // ========= DELTA OI CHART =========
-    if (deltaOiChart) deltaOiChart.destroy();
-    deltaOiChart = new Chart(document.getElementById("deltaOiChartCanvas"), {
-        type: "line",
-        data: {
-            labels: strikes,
-            datasets: [
-                {
-                    label: "Call ΔOI",
-                    data: filtered.map(r => r.call_change),
-                    borderColor: "#ef4444",
-                    fill: false
-                },
-                {
-                    label: "Put ΔOI",
-                    data: filtered.map(r => r.put_change),
-                    borderColor: "#22c55e",
-                    fill: false
-                }
-            ]
-        }
-    });
-
-    // ========= PCR CHART =========
-    if (pcrChart) pcrChart.destroy();
-    pcrChart = new Chart(document.getElementById("pcrChartCanvas"), {
-        type: "line",
-        data: {
-            labels: strikes,
-            datasets: [{
-                label: "PCR Trend",
-                data: strikes.map(() => data.pcr),
-                borderColor: "#38bdf8"
-            }]
-        }
-    });
-
-    // ========= MAX PAIN =========
-    if (maxPainChart) maxPainChart.destroy();
-    maxPainChart = new Chart(document.getElementById("maxPainChartCanvas"), {
-        type: "bar",
-        data: {
-            labels: strikes,
-            datasets: [{
-                label: "Max Pain Level",
-                data: strikes.map(s => s == data.max_pain ? 1 : 0),
-                backgroundColor: "#a855f7"
-            }]
-        }
-    });
-}
-
-
-// START BUTTON
-document.getElementById("startSyncBtn").addEventListener("click", startApp);
 </script>
 </body>
 </html>
