@@ -3,9 +3,10 @@ from flask_cors import CORS
 import requests
 from datetime import datetime
 import logging
+import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for all routes
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -62,12 +63,10 @@ def ai_signal(call_change, put_change):
 def get_option_data():
     """Main function to fetch option chain data"""
     try:
-        # Get token from Firebase
         token = fetch_token_from_firebase()
         if not token:
             return None, "No valid token found"
         
-        # Get expiry
         expiry_url = f"{BASE_URL}/optionchain/expirylist"
         headers = {
             "access-token": token,
@@ -84,7 +83,6 @@ def get_option_data():
         
         expiry = sorted(expiry_data["data"])[0]
         
-        # Get option chain
         option_url = f"{BASE_URL}/optionchain"
         option_payload = {
             "UnderlyingScrip": 13,
@@ -95,7 +93,6 @@ def get_option_data():
         option_response = requests.post(option_url, headers=headers, json=option_payload, timeout=10)
         option_data = option_response.json()
         
-        # Process data
         processed_data = []
         oc = option_data.get("data", {}).get("oc", {})
         
@@ -122,14 +119,12 @@ def get_option_data():
         
         processed_data.sort(key=lambda x: x["strike"])
         
-        # Calculate metrics
         total_call = sum(x["call_oi"] for x in processed_data)
         total_put = sum(x["put_oi"] for x in processed_data)
         total_call_change = sum(x["call_change"] for x in processed_data)
         total_put_change = sum(x["put_change"] for x in processed_data)
         pcr = round(total_put / total_call, 2) if total_call > 0 else 0
         
-        # Calculate Max Pain
         max_pain_value = None
         if processed_data:
             strikes = [x["strike"] for x in processed_data]
@@ -143,11 +138,8 @@ def get_option_data():
                     min_loss = loss
                     max_pain_value = s
         
-        # Calculate Support/Resistance
         support = max(processed_data, key=lambda x: x["put_oi"])["strike"] if processed_data else None
         resistance = max(processed_data, key=lambda x: x["call_oi"])["strike"] if processed_data else None
-        
-        # Generate signals
         market_signal = get_signal(pcr)
         smart_money_signal = ai_signal(total_call_change, total_put_change)
         
@@ -164,7 +156,7 @@ def get_option_data():
             "resistance": resistance,
             "market_signal": market_signal,
             "smart_money_signal": smart_money_signal,
-            "data": processed_data[-30:],  # Last 30 strikes
+            "data": processed_data[-30:],
             "timestamp": datetime.now().isoformat()
         }, None
         
@@ -176,6 +168,11 @@ def get_option_data():
 def index():
     """Serve the dashboard"""
     return render_template("index.html")
+
+@app.route("/login")
+def login_page():
+    """Serve the login page"""
+    return render_template("login.html")
 
 @app.route("/api/market-data")
 def market_data():
@@ -196,9 +193,10 @@ def health():
     })
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
     print("=" * 50)
     print("🚀 Dhan API Server Started")
-    print(f"📍 URL: http://localhost:5000")
+    print(f"📍 URL: http://0.0.0.0:{port}")
     print(f"🔑 Client ID: {CLIENT_ID}")
     print("=" * 50)
-    app.run(debug=True, port=10000, host="0.0.0.0")
+    app.run(host="0.0.0.0", port=port, debug=False)
