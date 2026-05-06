@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Token Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: monospace;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #276749 100%);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+
+        .token-info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            border-left: 4px solid #667eea;
+        }
+
+        .token-info p {
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        .token-info strong {
+            color: #4a5568;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .login-form {
+            display: block;
+        }
+
+        .expiry-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .expiry-valid {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .expiry-expired {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .token-value {
+            background: #2d3748;
+            color: #68d391;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            overflow-x: auto;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .api-info {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .api-info h4 {
+            color: #2c5282;
+            margin-bottom: 10px;
+        }
+
+        .api-endpoint {
+            background: #2d3748;
+            color: #68d391;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .small-btn {
+            width: auto;
+            padding: 12px 20px;
+            margin-top: 0;
+            background: #4299e1;
+        }
+    </style>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1PpNpprUvG1yUTshRFCvlVjzF9QF6xkw",
+            authDomain: "trading-idea-render.firebaseapp.com",
+            databaseURL: "https://trading-idea-render-default-rtdb.firebaseio.com",
+            projectId: "trading-idea-render",
+            storageBucket: "trading-idea-render.firebasestorage.app",
+            messagingSenderId: "1040425260826",
+            appId: "1:1040425260826:web:507a97ebea6bfab75c3ea3",
+            measurementId: "G-33J854E4DK"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // DOM Elements
+        const loginContainer = document.getElementById('loginContainer');
+        const dashboard = document.getElementById('dashboard');
+        const messageDiv = document.getElementById('message');
+        const dashboardMessageDiv = document.getElementById('dashboardMessage');
+        const userEmailSpan = document.getElementById('userEmail');
+        const currentTokenSpan = document.getElementById('currentToken');
+        const tokenExpirySpan = document.getElementById('tokenExpiry');
+        const tokenStatusSpan = document.getElementById('tokenStatus');
+        const tokenInput = document.getElementById('tokenInput');
+        const expiryDateInput = document.getElementById('expiryDate');
+        const expiryTimeInput = document.getElementById('expiryTime');
+        
+        // Helper function to show messages
+        function showMessage(msg, type, target = 'login') {
+            const messageDivToUse = target === 'login' ? messageDiv : dashboardMessageDiv;
+            messageDivToUse.textContent = msg;
+            messageDivToUse.className = `message ${type}`;
+            setTimeout(() => {
+                messageDivToUse.style.display = 'none';
+                messageDivToUse.className = 'message';
+            }, 4000);
+        }
+        
+        // Save token to Firebase Database (for other servers to access)
+        async function saveTokenToDatabase(token, expiresAt, userEmail) {
+            try {
+                const tokenRef = ref(database, 'ownerToken');
+                const tokenData = {
+                    token: token,
+                    userEmail: userEmail,
+                    createdAt: Date.now(),
+                    createdAtReadable: new Date().toISOString(),
+                    expiresAt: expiresAt,
+                    expiresAtReadable: new Date(expiresAt).toISOString(),
+                    lastUpdated: Date.now(),
+                    lastUpdatedReadable: new Date().toISOString(),
+                    status: expiresAt > Date.now() ? 'active' : 'expired'
+                };
+                
+                // This REPLACES the entire token data
+                await set(tokenRef, tokenData);
+                console.log('Token saved to Firebase Database');
+                return true;
+            } catch (error) {
+                console.error('Error saving token to database:', error);
+                return false;
+            }
+        }
+        
+        // Get current token from database (for display)
+        async function loadCurrentToken() {
+            try {
+                const tokenRef = ref(database, 'ownerToken');
+                const snapshot = await get(tokenRef);
+                if (snapshot.exists()) {
+                    const tokenData = snapshot.val();
+                    displayToken(tokenData);
+                } else {
+                    currentTokenSpan.innerHTML = '<em>No token saved yet</em>';
+                    tokenExpirySpan.innerHTML = '<em>No token</em>';
+                    tokenStatusSpan.innerHTML = '<span class="expiry-badge expiry-expired">No Token</span>';
+                }
+            } catch (error) {
+                console.error('Error loading token:', error);
+            }
+        }
+        
+        // Display token info
+        function displayToken(tokenData) {
+            if (tokenData && tokenData.token) {
+                const isExpired = Date.now() > tokenData.expiresAt;
+                currentTokenSpan.innerHTML = `<div class="token-value">${tokenData.token}</div>`;
+                tokenExpirySpan.innerHTML = new Date(tokenData.expiresAt).toLocaleString();
+                tokenStatusSpan.innerHTML = isExpired ? 
+                    '<span class="expiry-badge expiry-expired">⛔ EXPIRED</span>' : 
+                    '<span class="expiry-badge expiry-valid">✅ VALID</span>';
+            }
+        }
+        
+        // Save/Replace token (main function)
+        window.saveToken = async function() {
+            const token = tokenInput.value.trim();
+            const expiryDate = expiryDateInput.value;
+            const expiryTime = expiryTimeInput.value;
+            
+            if (!token) {
+                showMessage('Please enter a JWT token', 'error', 'dashboard');
+                return;
+            }
+            
+            if (!expiryDate || !expiryTime) {
+                showMessage('Please select expiry date and time', 'error', 'dashboard');
+                return;
+            }
+            
+            // Combine date and time
+            const expiresAt = new Date(`${expiryDate}T${expiryTime}`);
+            
+            if (isNaN(expiresAt.getTime())) {
+                showMessage('Invalid expiry date/time', 'error', 'dashboard');
+                return;
+            }
+            
+            const userEmail = auth.currentUser?.email;
+            
+            // Save to database (this REPLACES any existing token)
+            const success = await saveTokenToDatabase(token, expiresAt.getTime(), userEmail);
+            
+            if (success) {
+                showMessage(`✅ Token saved/replaced successfully! Expires at: ${expiresAt.toLocaleString()}`, 'success', 'dashboard');
+                await loadCurrentToken();
+                
+                // Clear input
+                tokenInput.value = '';
+                expiryDateInput.value = '';
+                expiryTimeInput.value = '';
+            } else {
+                showMessage('❌ Failed to save token to database', 'error', 'dashboard');
+            }
+        };
+        
+        // Login function
+        window.login = async function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showMessage('Please enter email and password', 'error', 'login');
+                return;
+            }
+            
+            try {
+                showMessage('Logging in...', 'success', 'login');
+                
+                // Firebase Authentication
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Show dashboard
+                loginContainer.style.display = 'none';
+                dashboard.style.display = 'block';
+                userEmailSpan.textContent = user.email;
+                
+                // Load existing token from database
+                await loadCurrentToken();
+                
+                showMessage(`✅ Welcome ${user.email}! You can now manage tokens.`, 'success', 'dashboard');
+                
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed: ';
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'User not found.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Wrong password.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                showMessage(errorMessage, 'error', 'login');
+            }
+        };
+        
+        // Logout function
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                loginContainer.style.display = 'block';
+                dashboard.style.display = 'none';
+                showMessage('Logged out successfully.', 'success', 'login');
+            } catch (error) {
+                showMessage('Logout failed: ' + error.message, 'error', 'dashboard');
+            }
+        };
+        
+        // Set default expiry to 24 hours from now
+        function setDefaultExpiry() {
+            const defaultExpiry = new Date();
+            defaultExpiry.setHours(defaultExpiry.getHours() + 24);
+            
+            const dateStr = defaultExpiry.toISOString().split('T')[0];
+            const timeStr = defaultExpiry.toTimeString().slice(0, 5);
+            
+            if (expiryDateInput && !expiryDateInput.value) {
+                expiryDateInput.value = dateStr;
+            }
+            if (expiryTimeInput && !expiryTimeInput.value) {
+                expiryTimeInput.value = timeStr;
+            }
+        }
+        
+        // Check auth state on load
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                loginContainer.style.display = 'none';
+                dashboard.style.display = 'block';
+                userEmailSpan.textContent = user.email;
+                await loadCurrentToken();
+                setDefaultExpiry();
+            } else {
+                loginContainer.style.display = 'block';
+                dashboard.style.display = 'none';
+            }
+        });
+        
+        window.addEventListener('load', () => {
+            setDefaultExpiry();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginContainer">
+            <h2>🔐 Owner Login</h2>
+            <div class="subtitle">Trading Ideas Platform - Token Management</div>
+            <form id="loginFormElement" onsubmit="login(event)">
+                <div class="form-group">
+                    <label>📧 Email Address</label>
+                    <input type="email" id="email" placeholder="codestarhsr@gmail.com" value="codestarhsr@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>🔒 Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div id="message" class="message"></div>
+        </div>
+        
+        <!-- Dashboard - Token Management -->
+        <div id="dashboard" class="dashboard">
+            <h2>📊 Token Management System</h2>
+            <div class="subtitle">Insert, Replace & Save Tokens to Database</div>
+            
+            <!-- Current Token Display -->
+            <div class="token-info">
+                <p><strong>👤 Logged in as:</strong> <span id="userEmail" style="color: #667eea; font-weight: bold;"></span></p>
+                <p><strong>🔑 Current Token in Database:</strong></p>
+                <p><span id="currentToken"></span></p>
+                <p><strong>⏰ Token Expires At:</strong> <span id="tokenExpiry"></span></p>
+                <p><strong>📊 Token Status:</strong> <span id="tokenStatus"></span></p>
+            </div>
+            
+            <!-- Token Input Area -->
+            <div class="form-group">
+                <label>✏️ Insert New JWT Token (Replaces existing)</label>
+                <textarea id="tokenInput" placeholder="Paste your JWT token here..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>📅 Expiry Date & Time</label>
+                <div class="input-group">
+                    <input type="date" id="expiryDate">
+                    <input type="time" id="expiryTime">
+                </div>
+            </div>
+            
+            <button onclick="saveToken()" class="save-btn">💾 Save / Replace Token to Database</button>
+            
+            <!-- API Info for Other Servers -->
+            <div class="api-info">
+                <h4>🔌 For Automation / Other Servers</h4>
+                <p>Other servers can fetch this token from Firebase Database:</p>
+                <div class="api-endpoint">
+                    GET https://trading-idea-render-default-rtdb.firebaseio.com/ownerToken.json
+                </div>
+                <p style="margin-top: 10px; font-size: 12px;">
+                    <strong>Response format:</strong><br>
+                    <code>
+                    {<br>
+                    &nbsp;&nbsp;"token": "eyJhbGciOiJIUzI1NiIs...",<br>
+                    &nbsp;&nbsp;"expiresAt": 1734567890000,<br>
+                    &nbsp;&nbsp;"expiresAtReadable": "2024-12-19T10:30:00.000Z",<br>
+                    &nbsp;&nbsp;"status": "active"<br>
+                    }
+                    </code>
+                </p>
+            </div>
+            
+            <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+            
+            <div id="dashboardMessage" class="message"></div>
+        </div>
+    </div>
+</body>
+</html>
