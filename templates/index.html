@@ -2,14 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>NANO CORE | options intelligence</title>
-    <!-- Chart.js CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option Chain Analytics | Premium Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Font Awesome 6 (minimal) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- ultra-compact font system -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -18,541 +13,875 @@
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', monospace;
-            background: #03050b;
-            background-image: radial-gradient(circle at 15% 30%, rgba(0, 255, 128, 0.02) 0%, #03050b 90%);
-            color: #cbd5e6;
-            overflow-x: hidden;
-            font-size: 13px;
-            letter-spacing: -0.2px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* ----- NANO SIDEBAR: micro, dense ----- */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 240px;
-            background: rgba(2, 5, 12, 0.96);
-            backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(0, 255, 128, 0.2);
-            z-index: 1000;
-            transform: translateX(-100%);
-            transition: transform 0.25s ease;
-            padding: 20px 12px;
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: #1c1c1e;
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 20px;
         }
 
-        .sidebar.open {
-            transform: translateX(0);
-        }
-
-        .sidebar-header {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            background: linear-gradient(120deg, #a0f0c0, #22c55e);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px dashed #22c55e40;
-            padding-bottom: 8px;
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .nav-item {
-            background: rgba(20, 30, 45, 0.5);
-            padding: 8px 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            transition: 0.15s;
-        }
-
-        .nav-item i {
-            width: 20px;
-            font-size: 0.85rem;
-        }
-
-        .nav-item.active {
-            background: #22c55e20;
-            border-left: 2px solid #22c55e;
-            color: #bbf7d0;
-        }
-
-        /* main area */
-        .main-content {
-            padding: 12px 12px 24px;
-            width: 100%;
-        }
-
-        /* top bar - nano style */
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            flex-wrap: wrap;
-            background: #0a0f1a;
-            border-radius: 28px;
-            padding: 6px 12px;
-            margin-bottom: 22px;
-            border: 0.5px solid #22c55e30;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-        }
-
-        .menu-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 30px;
-            background: #0f172a;
-            border: none;
-            color: #22c55e;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .input-display-area {
-            font-size: 0.65rem;
-            font-weight: 500;
-            background: #010409;
-            padding: 6px 12px;
-            border-radius: 28px;
-            flex: 1;
-            white-space: nowrap;
-            overflow-x: auto;
-            color: #8b9bb0;
-        }
-
-        .auth-group {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .auth-group input {
-            background: #0f172a;
-            border: 0.5px solid #2a374b;
-            border-radius: 40px;
-            padding: 6px 12px;
-            font-size: 0.7rem;
-            width: 130px;
-            color: white;
-        }
-
-        #startSyncBtn {
-            background: #22c55e;
-            border: none;
-            border-radius: 40px;
-            padding: 0 16px;
+        .header-left h1 {
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 24px;
             font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: -0.2px;
-            cursor: pointer;
-            color: #020617;
+            letter-spacing: -0.5px;
         }
 
-        /* ----- NANO CARD GRID: micro-density ----- */
-        .cards-premium-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
+        .header-left p {
+            color: #8e8e93;
+            font-size: 14px;
+            font-weight: 400;
         }
 
-        .insight-card {
-            background: rgba(2, 8, 18, 0.7);
-            backdrop-filter: blur(4px);
-            border-radius: 20px;
-            padding: 12px 14px;
-            border: 0.5px solid rgba(34, 197, 94, 0.25);
-            transition: all 0.1s linear;
-        }
-
-        .card-header {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-            color: #64748b;
-            margin-bottom: 6px;
-        }
-
-        .card-big-value {
-            font-size: 1.7rem;
-            font-weight: 700;
-            font-family: 'Inter', monospace;
-            color: #e2e8f0;
-            line-height: 1.2;
-        }
-
-        .mini-badge {
-            font-size: 0.6rem;
-            color: #22c55e;
-            background: #22c55e15;
+        .status {
             display: inline-block;
-            padding: 2px 10px;
-            border-radius: 40px;
-            margin: 6px 0 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #2c2c2e;
+            color: #34c759;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 10px;
+            font-family: monospace;
         }
 
-        .chart-sm canvas {
-            max-height: 95px;
+        /* Apple Style Login Button */
+        .user-profile {
+            width: auto;
+            height: auto;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #2c2c2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile:hover {
+            background: #3a3a3c;
+            transform: scale(1.02);
+        }
+
+        .user-profile-inner {
+            padding: 10px 24px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .user-profile-inner svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
             width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            animation: fadeIn 0.3s ease;
         }
 
-        /* NANO METRICS: ultra compact grid */
-        .nano-grid {
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #1c1c1e;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: #000000;
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #8e8e93;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close:hover {
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8e8e93;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #2c2c2e;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007aff;
+            background: #3a3a3c;
+        }
+
+        .form-group input::placeholder {
+            color: #636366;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: #0051d5;
+            transform: translateY(-1px);
+        }
+
+        .error-msg {
+            background: #ff3b30;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        /* Signal Cards */
+        .signals-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin: 18px 0 20px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .card-mini {
-            background: #0a0f1c;
-            border-radius: 18px;
-            padding: 8px 5px;
-            text-align: center;
-            font-size: 0.65rem;
-            font-weight: 600;
-            border: 0.5px solid #1e293b;
-            transition: 0.05s linear;
-        }
-
-        .card-mini .value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-top: 4px;
-            font-family: 'Monaco', monospace;
-        }
-
-        .value.green { color: #4ade80; }
-        .value.red { color: #fb7185; }
-
-        /* table nano */
-        .table-nano {
-            overflow-x: auto;
+        .signal-card {
+            background: #1c1c1e;
             border-radius: 20px;
-            background: #02060e60;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #007aff, #5856d6);
+        }
+
+        .signal-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.1);
+            background: #2c2c2e;
+        }
+
+        .signal-title {
+            font-size: 13px;
+            color: #8e8e93;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .signal-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .signal-bullish {
+            color: #34c759;
+        }
+
+        .signal-bearish {
+            color: #ff3b30;
+        }
+
+        .signal-sideways {
+            color: #ff9f0a;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #1c1c1e;
+            border-radius: 16px;
+            padding: 18px;
+            transition: all 0.3s ease;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.1);
+            background: #2c2c2e;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #8e8e93;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .metric-change {
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .positive { color: #34c759; }
+        .negative { color: #ff3b30; }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: #1c1c1e;
+            border-radius: 20px;
+            padding: 20px;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+            border-left: 3px solid #007aff;
+            padding-left: 12px;
+        }
+
+        canvas {
+            max-height: 300px;
+            width: 100%;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        /* Table */
+        .table-container {
+            background: #1c1c1e;
+            border-radius: 16px;
+            padding: 0;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #2c2c2e;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #3a3a3c;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4c;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.68rem;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: right;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
         }
 
         th {
-            background: #0f172a;
-            padding: 10px 5px;
-            font-size: 0.65rem;
+            background: #000000;
             font-weight: 600;
-            color: #94a3b8;
+            color: #8e8e93;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        td {
-            padding: 8px 5px;
-            border-bottom: 0.5px solid #1e293b;
+        td:first-child, th:first-child {
+            position: sticky;
+            left: 0;
+            background: #1c1c1e;
+            font-weight: 600;
         }
 
-        /* responsive breakpoints: everything nano flexible */
-        @media (min-width: 520px) {
-            .cards-premium-grid { grid-template-columns: repeat(2, 1fr); }
-            .nano-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-        @media (min-width: 780px) {
-            .cards-premium-grid { grid-template-columns: repeat(3, 1fr); }
-            .nano-grid { grid-template-columns: repeat(5, 1fr); }
-        }
-        @media (min-width: 1024px) {
-            .main-content { margin-left: 240px; padding: 20px 24px; }
-            .sidebar { transform: translateX(0); width: 240px; }
-            .cards-premium-grid { grid-template-columns: repeat(4, 1fr); }
-            .nano-grid { grid-template-columns: repeat(5, 1fr); }
-            .menu-btn { display: none; }
-        }
-        @media (max-width: 1023px) {
-            .sidebar { width: 250px; }
+        th:first-child {
+            background: #000000;
+            z-index: 11;
         }
 
-        .red { color: #fc8181; }
-        .green { color: #6eeb8b; }
-        footer {
-            margin-top: 22px;
-            text-align: center;
-            font-size: 0.55rem;
-            opacity: 0.5;
+        .strike {
+            color: #007aff;
+            font-weight: 600;
         }
-        i, .fas {
-            font-size: 0.75rem;
+
+        /* Buttons */
+        .refresh-btn, .logout-btn {
+            position: fixed;
+            bottom: 20px;
+            background: #2c2c2e;
+            color: #ffffff;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
         }
-        button, input {
-            font-family: inherit;
+
+        .refresh-btn {
+            right: 20px;
+        }
+
+        .logout-btn {
+            left: 20px;
+            background: #ff3b30;
+            color: #ffffff;
+        }
+
+        .refresh-btn:hover, .logout-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .full-width {
+                grid-column: span 1;
+            }
+            .signals-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading-pulse {
+            animation: pulse 1.5s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
-
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <i class="fas fa-microchip"></i> N·CORE
-    </div>
-    <div class="nav-menu">
-        <div class="nav-item active" data-nav="dashboard"><i class="fas fa-chart-simple"></i> <span>Dashboard</span></div>
-        <div class="nav-item" data-nav="analysis"><i class="fas fa-chart-line"></i> <span>Analysis</span></div>
-        <div class="nav-item" data-nav="chain"><i class="fas fa-grid-2"></i> <span>Chain</span></div>
-        <div class="nav-item" data-nav="settings"><i class="fas fa-key"></i> <span>Creds</span></div>
-    </div>
-    <div style="margin-top: auto; font-size: 9px; text-align: center; padding: 12px 0; color: #2d4a3a;">
-        <i class="fas fa-bolt"></i> nano realtime
-    </div>
-</div>
-
-<div class="main-content">
-    <div class="top-bar">
-        <button class="menu-btn" id="menuToggleBtn"><i class="fas fa-bars"></i></button>
-        <div class="input-display-area" id="inputDisplayArea">
-            ⚡ nano terminal · token ready
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>📊 Option Chain Analytics</h1>
+                <p>Real-time NIFTY 50 Analysis | Powered by Dhan API</p>
+                <div class="status" id="status">🔄 Loading data...</div>
+            </div>
+            <a href="login.html">
+            <div id="loginButton" class="user-profile" >
+                <div class="user-profile-inner">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="m15.626 11.769a6 6 0 1 0 -7.252 0 9.008 9.008 0 0 0 -5.374 8.231 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 9.008 9.008 0 0 0 -5.374-8.231zm-7.626-4.769a4 4 0 1 1 4 4 4 4 0 0 1 -4-4zm10 14h-12a1 1 0 0 1 -1-1 7 7 0 0 1 14 0 1 1 0 0 1 -1 1z"/>
+                    </svg>
+                    <p>Sign In</p>
+                </div>
+            </div></a>
         </div>
-        <div class="auth-group">
-            <input type="text" id="tokenInput" placeholder="Access Token" autocomplete="off">
-            <input type="text" id="clientInput" placeholder="Client ID" autocomplete="off">
-            <button id="startSyncBtn"><i class="fas fa-play"></i> START</button>
+
+        <!-- Login Modal -->
+       
+
+        <!-- Signal Cards -->
+        <div class="signals-grid">
+            <div class="signal-card">
+                <div class="signal-title">Market Signal (PCR Based)</div>
+                <div class="signal-value" id="marketSignal">-</div>
+            </div>
+            <div class="signal-card">
+                <div class="signal-title">AI Smart Money Signal</div>
+                <div class="signal-value" id="aiSignal">-</div>
+            </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Call OI</div>
+                <div class="metric-value" id="totalCallOi">-</div>
+                <div class="metric-change" id="callChange">-</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Put OI</div>
+                <div class="metric-value" id="totalPutOi">-</div>
+                <div class="metric-change" id="putChange">-</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">PCR Ratio</div>
+                <div class="metric-value" id="pcr">-</div>
+                <div class="metric-change">Put/Call Ratio</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Max Pain</div>
+                <div class="metric-value" id="maxPain">-</div>
+                <div class="metric-change">Maximum Pain Level</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Support</div>
+                <div class="metric-value" id="support">-</div>
+                <div class="metric-change">Max Put OI</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Resistance</div>
+                <div class="metric-value" id="resistance">-</div>
+                <div class="metric-change">Max Call OI</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Open Interest Distribution</div>
+                <canvas id="oiChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">PCR Analysis</div>
+                <canvas id="pcrChart"></canvas>
+            </div>
+            <div class="chart-card full-width">
+                <div class="chart-title">Option Chain Details</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Strike</th>
+                                <th>Call OI</th>
+                                <th>Call Δ</th>
+                                <th>Put OI</th>
+                                <th>Put Δ</th>
+                                <th>Total OI</th>
+                                <th>PCR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="7" style="text-align:center; color:#8e8e93;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 4 main nano insight cards -->
-    <div class="cards-premium-grid">
-        <div class="insight-card">
-            <div class="card-header"><i class="fas fa-chart-column"></i> TOTAL OI</div>
-            <div class="card-big-value" id="totalOiValue">0</div>
-            <div class="mini-badge">call+put OI</div>
-            <div class="chart-sm"><canvas id="totalOiChartCanvas" width="400" height="90"></canvas></div>
-        </div>
-        <div class="insight-card">
-            <div class="card-header"><i class="fas fa-waveform"></i> Δ OPEN INT</div>
-            <div class="card-big-value" id="totalDeltaOiValue">0</div>
-            <div class="mini-badge">net momentum</div>
-            <div class="chart-sm"><canvas id="deltaOiChartCanvas"></canvas></div>
-        </div>
-        <div class="insight-card">
-            <div class="card-header"><i class="fas fa-divide"></i> PCR RATIO</div>
-            <div class="card-big-value" id="pcrValue">0.00</div>
-            <div class="mini-badge">put/call</div>
-            <div class="chart-sm"><canvas id="pcrChartCanvas"></canvas></div>
-            <div id="pcrSignalText" style="font-size: 9px; margin-top: 6px;">⚫ nano neutral</div>
-        </div>
-        <div class="insight-card">
-            <div class="card-header"><i class="fas fa-bullseye"></i> MAX PAIN</div>
-            <div class="card-big-value" id="maxPainValue">---</div>
-            <div class="mini-badge">option writer eq</div>
-            <div class="chart-sm"><canvas id="maxPainChartCanvas"></canvas></div>
-        </div>
-    </div>
+    <button class="refresh-btn" onclick="fetchData()">↻ Refresh</button>
+    <button id="logoutButton" class="logout-btn" onclick="logout()" style="display: none;">Sign Out</button>
 
-    <!-- micro cards grid -->
-    <div class="nano-grid">
-        <div class="card-mini">PCR<div id="pcrMini" class="value">0.00</div></div>
-        <div class="card-mini">📞 CALL OI<div id="call_oi" class="value red">0</div></div>
-        <div class="card-mini">📉 PUT OI<div id="put_oi" class="value green">0</div></div>
-        <div class="card-mini">Δ CALL<div id="call_change" class="value">0</div></div>
-        <div class="card-mini">Δ PUT<div id="put_change" class="value">0</div></div>
-        <div class="card-mini">🎯 MAX PAIN<div id="max_pain_mini" class="value">-</div></div>
-        <div class="card-mini">🛡️ SUP<div id="support" class="value green">-</div></div>
-        <div class="card-mini">⚔️ RES<div id="resistance" class="value red">-</div></div>
-        <div class="card-mini">📈 TREND<div id="signal" class="value">-</div></div>
-        <div class="card-mini">🧠 AI<div id="ai_signal" class="value">-</div></div>
-    </div>
-
-    <!-- nano option chain -->
-    <div style="overflow-x: auto; border-radius: 18px; background: #03060e; padding: 2px 0;">
-        <table id="optionChainTable">
-            <thead><tr><th>STRIKE</th><th>CALL OI</th><th>PUT OI</th><th>ΔC</th><th>ΔP</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-    <footer><i class="fas fa-microchip"></i> NANO ENGINE · derivatives core</footer>
-</div>
-
-<script>
-    let token = "", client_id = "";
-    let totalOiChart, deltaOiChart, pcrChart, maxPainChart;
-    let intervalRef = null;
-
-    function formatNumber(num) {
-        if (num === null || num === undefined) return "0";
-        let n = Number(num);
-        if (isNaN(n)) return "0";
-        if (n > 1e7) return (n/1e7).toFixed(1) + "Cr";
-        if (n > 1e5) return (n/1e5).toFixed(1) + "L";
-        if (n > 1e3) return (n/1e3).toFixed(1) + "K";
-        return n.toLocaleString();
-    }
-
-    function startApp() {
-        token = document.getElementById("tokenInput").value.trim();
-        client_id = document.getElementById("clientInput").value.trim();
-        if (!token || !client_id) {
-            alert("nano alert: provide token & client id");
-            return;
+    <script>
+        let oiChart, pcrChart;
+        let isLoggedIn = false;
+        
+        function getSignalClass(signal) {
+            if (signal.includes('BULLISH') || signal.includes('UPTREND')) {
+                return 'signal-bullish';
+            } else if (signal.includes('BEARISH') || signal.includes('DOWNTREND')) {
+                return 'signal-bearish';
+            } else {
+                return 'signal-sideways';
+            }
         }
-        document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-sync-alt fa-fw"></i> live streaming`;
-        if (intervalRef) clearInterval(intervalRef);
-        fetchData();
-        intervalRef = setInterval(fetchData, 5000);
-    }
-
-    function fetchData() {
-        fetch("/data", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, client_id })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                console.warn("nano err:", data.error);
-                document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-exclamation-triangle"></i> api: ${data.error.substring(0, 35)}`;
+        
+        function openModal() {
+            if (!isLoggedIn) {
+                document.getElementById('loginModal').style.display = 'block';
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter email and password';
+                errorDiv.style.display = 'block';
                 return;
             }
-            updateUI(data);
-            document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-circle-check"></i> nano @ ${new Date().toLocaleTimeString()}`;
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById("inputDisplayArea").innerHTML = `<i class="fas fa-plug"></i> reconnect ...`;
-        });
-    }
-
-    function updateUI(data) {
-        // Display core metrics
-        document.getElementById("pcrValue").innerText = data.pcr.toFixed(2);
-        document.getElementById("pcrMini").innerText = data.pcr.toFixed(2);
-        
-        let callOi = data.call_oi || 0;
-        let putOi = data.put_oi || 0;
-        document.getElementById("call_oi").innerText = formatNumber(callOi);
-        document.getElementById("put_oi").innerText = formatNumber(putOi);
-        document.getElementById("call_change").innerHTML = formatNumber(data.call_change_oi);
-        document.getElementById("put_change").innerHTML = formatNumber(data.put_change_oi);
-        document.getElementById("maxPainValue").innerText = data.max_pain;
-        document.getElementById("max_pain_mini").innerHTML = data.max_pain;
-        document.getElementById("signal").innerHTML = data.signal;
-        document.getElementById("ai_signal").innerHTML = data.ai_signal;
-        document.getElementById("support").innerHTML = data.support;
-        document.getElementById("resistance").innerHTML = data.resistance;
-
-        let totalOI = callOi + putOi;
-        let totalDelta = (data.call_change_oi || 0) + (data.put_change_oi || 0);
-        document.getElementById("totalOiValue").innerText = formatNumber(totalOI);
-        document.getElementById("totalDeltaOiValue").innerText = formatNumber(totalDelta);
-
-        let pcrVal = data.pcr;
-        let pcrElem = document.getElementById("pcrSignalText");
-        if (pcrVal > 1.2) pcrElem.innerHTML = "🔻 bearish PCR";
-        else if (pcrVal < 0.8) pcrElem.innerHTML = "🟢 bullish PCR";
-        else pcrElem.innerHTML = "⚪ neutral PCR";
-
-        // chain filter
-        let rawData = data.data || [];
-        let filtered = rawData.filter(r => (r.call_oi > 0 || r.put_oi > 0) && r.strike != null);
-        if (filtered.length === 0 && rawData.length) filtered = rawData.slice(0, 22).map(r => ({ ...r, call_oi: r.call_oi || 0, put_oi: r.put_oi || 0, call_change: r.call_change || 0, put_change: r.put_change || 0 }));
-        
-        let rows = "";
-        filtered.forEach(r => {
-            let addStyle = "";
-            if (r.strike == data.support) addStyle = "style='background: #064e3b30; border-left: 2px solid #22c55e;'";
-            if (r.strike == data.resistance) addStyle = "style='background: #7f1d1d30; border-left: 2px solid #f97316;'";
-            rows += `<tr ${addStyle}>
-                <td><b>${r.strike}</b></td>
-                <td class="red">${formatNumber(r.call_oi)}</td>
-                <td class="green">${formatNumber(r.put_oi)}</td>
-                <td class="${(r.call_change||0) >=0 ? 'green' : 'red'}">${formatNumber(r.call_change)}</td>
-                <td class="${(r.put_change||0) >=0 ? 'green' : 'red'}">${formatNumber(r.put_change)}</td>
-            </tr>`;
-        });
-        document.getElementById("tableBody").innerHTML = rows || "<tr><td colspan='5' style='text-align:center'>— no chain data —</td></tr>";
-
-        let strikes = filtered.map(s => s.strike);
-        let callVals = filtered.map(s => s.call_oi || 0);
-        let putVals = filtered.map(s => s.put_oi || 0);
-        let callDeltaArr = filtered.map(s => s.call_change || 0);
-        let putDeltaArr = filtered.map(s => s.put_change || 0);
-
-        if (totalOiChart) totalOiChart.destroy();
-        totalOiChart = new Chart(document.getElementById("totalOiChartCanvas"), {
-            type: "bar",
-            data: { labels: strikes, datasets: [{ label: "Call", data: callVals, backgroundColor: "#f97316", borderRadius: 4 }, { label: "Put", data: putVals, backgroundColor: "#22c55e", borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { font: { size: 8, weight: 'bold' }, color: '#9ca3af' } } } }
-        });
-
-        if (deltaOiChart) deltaOiChart.destroy();
-        deltaOiChart = new Chart(document.getElementById("deltaOiChartCanvas"), {
-            type: "line",
-            data: { labels: strikes, datasets: [{ label: "Δ Call", data: callDeltaArr, borderColor: "#fb923c", borderWidth: 1.5, pointRadius: 1 }, { label: "Δ Put", data: putDeltaArr, borderColor: "#4ade80", borderWidth: 1.5, pointRadius: 1 }] },
-            options: { responsive: true, plugins: { legend: { labels: { font: { size: 8 }, color: '#cbd5e6' } } } }
-        });
-
-        if (pcrChart) pcrChart.destroy();
-        let pcrLine = strikes.map(() => data.pcr);
-        pcrChart = new Chart(document.getElementById("pcrChartCanvas"), {
-            type: "line",
-            data: { labels: strikes, datasets: [{ label: "PCR", data: pcrLine, borderColor: "#38bdf8", borderWidth: 1.5, pointRadius: 1.2, fill: false }] },
-            options: { responsive: true, plugins: { tooltip: { callbacks: { label: (ctx) => `PCR: ${ctx.raw.toFixed(2)}` } } } }
-        });
-
-        if (maxPainChart) maxPainChart.destroy();
-        let maxPainIndicator = strikes.map(s => (s == data.max_pain ? 1.0 : 0.15));
-        maxPainChart = new Chart(document.getElementById("maxPainChartCanvas"), {
-            type: "bar",
-            data: { labels: strikes, datasets: [{ label: "Pain", data: maxPainIndicator, backgroundColor: "#c084fc", borderRadius: 6 }] },
-            options: { responsive: true, scales: { y: { display: false, max: 1.1 } }, plugins: { tooltip: { callbacks: { label: (ctx) => ctx.raw > 0.9 ? `⚡ MAX PAIN: ${data.max_pain}` : "strike" } } } }
-        });
-    }
-
-    // UI interactions
-    document.getElementById("startSyncBtn").addEventListener("click", startApp);
-    const menuBtn = document.getElementById("menuToggleBtn");
-    const sidebar = document.getElementById("sidebar");
-    menuBtn.addEventListener("click", () => sidebar.classList.toggle("open"));
-    
-    if (window.innerWidth < 1024) {
-        document.addEventListener("click", (e) => {
-            if (sidebar.classList.contains("open") && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-                sidebar.classList.remove("open");
+            
+            errorDiv.style.display = 'none';
+            
+            try {
+                if (email === 'codestarhsr@gmail.com' && password) {
+                    isLoggedIn = true;
+                    localStorage.setItem('isLoggedIn', 'true');
+                    document.getElementById('loginButton').style.display = 'none';
+                    document.getElementById('logoutButton').style.display = 'block';
+                    closeModal();
+                    fetchData();
+                } else {
+                    errorDiv.textContent = 'Invalid credentials. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Login failed: ' + error.message;
+                errorDiv.style.display = 'block';
             }
-        });
-    }
-    
-    const navButtons = document.querySelectorAll(".nav-item");
-    navButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            navButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            if (window.innerWidth < 1024) sidebar.classList.remove("open");
-            const navId = btn.getAttribute("data-nav");
-            if (navId === "chain") document.querySelector("table").scrollIntoView({ behavior: "smooth", block: "start" });
-            else if (navId === "dashboard") window.scrollTo({ top: 0, behavior: "smooth" });
-            else if (navId === "analysis") document.querySelector(".cards-premium-grid").scrollIntoView({ behavior: "smooth" });
-            else if (navId === "settings") document.getElementById("tokenInput").focus();
-        });
-    });
-</script>
+        }
+        
+        function logout() {
+            isLoggedIn = false;
+            localStorage.removeItem('isLoggedIn');
+            document.getElementById('loginButton').style.display = 'flex';
+            document.getElementById('logoutButton').style.display = 'none';
+            fetchData();
+        }
+        
+        async function fetchData() {
+            const btn = document.querySelector('.refresh-btn');
+            const statusDiv = document.getElementById('status');
+            
+            btn.disabled = true;
+            btn.textContent = '↻ Loading...';
+            statusDiv.innerHTML = '🔄 Fetching market data...';
+            
+            try {
+                const storedLogin = localStorage.getItem('isLoggedIn');
+                if (storedLogin === 'true') {
+                    isLoggedIn = true;
+                    document.getElementById('loginButton').style.display = 'none';
+                    document.getElementById('logoutButton').style.display = 'block';
+                }
+                
+                const response = await fetch('/api/market-data');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to fetch data');
+                }
+                
+                // Update signals
+                const marketSignalElem = document.getElementById('marketSignal');
+                const aiSignalElem = document.getElementById('aiSignal');
+                
+                marketSignalElem.textContent = data.market_signal;
+                marketSignalElem.className = `signal-value ${getSignalClass(data.market_signal)}`;
+                
+                aiSignalElem.textContent = data.smart_money_signal;
+                aiSignalElem.className = `signal-value ${getSignalClass(data.smart_money_signal)}`;
+                
+                // Update metrics
+                document.getElementById('totalCallOi').textContent = data.total_call_oi.toLocaleString();
+                document.getElementById('totalPutOi').textContent = data.total_put_oi.toLocaleString();
+                document.getElementById('pcr').textContent = data.pcr;
+                document.getElementById('maxPain').textContent = data.max_pain || 'N/A';
+                document.getElementById('support').textContent = data.support || 'N/A';
+                document.getElementById('resistance').textContent = data.resistance || 'N/A';
+                
+                // Update changes
+                const callChangeElem = document.getElementById('callChange');
+                const putChangeElem = document.getElementById('putChange');
+                
+                callChangeElem.innerHTML = `${data.total_call_change >= 0 ? '↑ +' : '↓ '}${data.total_call_change.toLocaleString()}`;
+                callChangeElem.className = `metric-change ${data.total_call_change >= 0 ? 'positive' : 'negative'}`;
+                
+                putChangeElem.innerHTML = `${data.total_put_change >= 0 ? '↑ +' : '↓ '}${data.total_put_change.toLocaleString()}`;
+                putChangeElem.className = `metric-change ${data.total_put_change >= 0 ? 'positive' : 'negative'}`;
+                
+                // Update charts
+                updateCharts(data);
+                
+                // Update table
+                updateTable(data);
+                
+                // Update status
+                statusDiv.innerHTML = `✓ Live | PCR: ${data.pcr} | Expiry: ${data.expiry}`;
+                statusDiv.style.background = '#2c2c2e';
+                statusDiv.style.color = '#34c759';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = `✗ Error: ${error.message}`;
+                statusDiv.style.background = '#2c2c2e';
+                statusDiv.style.color = '#ff3b30';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '↻ Refresh';
+            }
+        }
+        
+        function updateCharts(data) {
+            const strikes = data.data.map(d => d.strike);
+            const callOi = data.data.map(d => d.call_oi);
+            const putOi = data.data.map(d => d.put_oi);
+            const pcrValues = data.data.map(d => (d.put_oi / (d.call_oi || 1)).toFixed(2));
+            
+            // OI Chart
+            if (oiChart) oiChart.destroy();
+            oiChart = new Chart(document.getElementById('oiChart'), {
+                type: 'line',
+                data: {
+                    labels: strikes,
+                    datasets: [
+                        {
+                            label: 'Call OI',
+                            data: callOi,
+                            borderColor: '#34c759',
+                            backgroundColor: 'rgba(52, 199, 89, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: '#34c759',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Put OI',
+                            data: putOi,
+                            borderColor: '#ff3b30',
+                            backgroundColor: 'rgba(255, 59, 48, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: '#ff3b30',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { 
+                            position: 'top',
+                            labels: { color: '#ffffff', font: { size: 12 } }
+                        },
+                        tooltip: { mode: 'index', intersect: false, backgroundColor: '#1c1c1e', titleColor: '#ffffff', bodyColor: '#8e8e93' }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8e8e93' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8e8e93', rotation: -45, autoSkip: true, maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            });
+            
+            // PCR Chart
+            if (pcrChart) pcrChart.destroy();
+            pcrChart = new Chart(document.getElementById('pcrChart'), {
+                type: 'bar',
+                data: {
+                    labels: strikes,
+                    datasets: [{
+                        label: 'PCR Ratio',
+                        data: pcrValues,
+                        backgroundColor: '#007aff',
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#0051d5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff', font: { size: 12 } } },
+                        tooltip: { backgroundColor: '#1c1c1e', titleColor: '#ffffff', bodyColor: '#8e8e93' }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8e8e93' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8e8e93', rotation: -45, autoSkip: true, maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            });
+        }
+        
+        function updateTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data.data.forEach(row => {
+                const totalOi = row.call_oi + row.put_oi;
+                const pcr = (row.put_oi / (row.call_oi || 1)).toFixed(2);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="strike">${row.strike}</td>
+                    <td>${row.call_oi.toLocaleString()}</td>
+                    <td class="${row.call_change >= 0 ? 'positive' : 'negative'}">${row.call_change >= 0 ? '+' : ''}${row.call_change.toLocaleString()}</td>
+                    <td>${row.put_oi.toLocaleString()}</td>
+                    <td class="${row.put_change >= 0 ? 'positive' : 'negative'}">${row.put_change >= 0 ? '+' : ''}${row.put_change.toLocaleString()}</td>
+                    <td>${totalOi.toLocaleString()}</td>
+                    <td>${pcr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Check login status on load
+        const storedLogin = localStorage.getItem('isLoggedIn');
+        if (storedLogin === 'true') {
+            isLoggedIn = true;
+            document.getElementById('loginButton').style.display = 'none';
+            document.getElementById('logoutButton').style.display = 'block';
+        }
+        
+        // Initial load and auto-refresh every 30 seconds
+        fetchData();
+        setInterval(fetchData, 30000);
+    </script>
 </body>
 </html>
