@@ -1,164 +1,54 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, jsonify, request
+from flask_cors import CORS
 import requests
+from datetime import datetime
+import logging
 
 app = Flask(__name__)
+CORS(app)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Configuration
 BASE_URL = "https://api.dhan.co/v2"
+DATABASE_URL = "https://trading-idea-render-default-rtdb.firebaseio.com/ownerToken.json"
+CLIENT_ID = "1111417630"
 
-
-# =========================
-# GET EXPIRY
-# =========================
-def get_expiry(token, client_id):
+def fetch_token_from_firebase():
+    """Fetch token from Firebase"""
     try:
-        url = f"{BASE_URL}/optionchain/expirylist"
-
-        headers = {
-            "access-token": token,
-            "client-id": client_id,
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "UnderlyingScrip": 13,
-            "UnderlyingSeg": "IDX_I"
-        }
-
-        res = requests.post(url, headers=headers, json=payload, timeout=10)
-        res.raise_for_status()
-        data = res.json()
-
-        if "data" in data and len(data["data"]) > 0:
-            return sorted(data["data"])[0]
-
+        logger.info("Fetching token from Firebase...")
+        response = requests.get(DATABASE_URL, timeout=10)
+        
+        if response.status_code == 200:
+            token_data = response.json()
+            if token_data and token_data.get('token'):
+                current_time = datetime.now().timestamp() * 1000
+                expires_at = token_data.get('expiresAt', 0)
+                
+                if current_time < expires_at:
+                    logger.info("Token is valid")
+                    return token_data['token']
+                else:
+                    logger.warning("Token expired")
+                    return None
+        return None
     except Exception as e:
-        print("Expiry Error:", e)
-
-    return None
-
-
-# =========================
-# GET OPTION CHAIN
-# =========================
-def get_option_chain(token, client_id, expiry):
-    try:
-        url = f"{BASE_URL}/optionchain"
-
-        headers = {
-            "access-token": token,
-            "client-id": client_id,
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "UnderlyingScrip": 13,
-            "UnderlyingSeg": "IDX_I",
-            "Expiry": expiry
-        }
-
-        res = requests.post(url, headers=headers, json=payload, timeout=10)
-        res.raise_for_status()
-        return res.json()
-
-    except Exception as e:
-        print("Option Chain Error:", e)
-        return {}
-
-
-# =========================
-# PROCESS DATA (FILTERED)
-# =========================
-def process_data(raw):
-    result = []
-
-    oc = raw.get("data", {}).get("oc", {})
-
-    if not isinstance(oc, dict):
-        return []
-
-    for strike_str, item in oc.items():
-        try:
-            strike = float(strike_str)
-        except:
-            continue
-
-        ce = item.get("ce", {}) or {}
-        pe = item.get("pe", {}) or {}
-
-        call_oi = ce.get("oi", 0) or 0
-        put_oi = pe.get("oi", 0) or 0
-
-        call_prev = ce.get("previous_oi", 0) or 0
-        put_prev = pe.get("previous_oi", 0) or 0
-
-        # ❌ REMOVE EMPTY STRIKES
-        if call_oi == 0 and put_oi == 0:
-            continue
-
-        result.append({
-            "strike": strike,
-            "call_oi": call_oi,
-            "put_oi": put_oi,
-            "call_change": call_oi - call_prev,
-            "put_change": put_oi - put_prev
-        })
-
-    result.sort(key=lambda x: x["strike"])
-    return result
-
-
-# =========================
-# MAX PAIN
-# =========================
-def max_pain(data):
-    if not data:
+        logger.error(f"Error fetching token: {e}")
         return None
 
-    strikes = [x["strike"] for x in data]
-    min_loss = float("inf")
-    best = None
-
-    for s in strikes:
-        loss = 0
-        for row in data:
-            loss += row["call_oi"] * max(0, s - row["strike"])
-            loss += row["put_oi"] * max(0, row["strike"] - s)
-
-        if loss < min_loss:
-            min_loss = loss
-            best = s
-
-    return best
-
-
-# =========================
-# SUPPORT / RESISTANCE
-# =========================
-def find_levels(data):
-    if not data:
-        return None, None
-
-    resistance = max(data, key=lambda x: x["call_oi"])["strike"]
-    support = max(data, key=lambda x: x["put_oi"])["strike"]
-
-    return support, resistance
-
-
-# =========================
-# PCR SIGNAL
-# =========================
 def get_signal(pcr):
+    """Get market signal based on PCR ratio"""
     if pcr > 1.2:
         return "UPTREND 📈"
     elif pcr < 0.8:
         return "DOWNTREND 📉"
     return "SIDEWAYS ⚖️"
 
-
-# =========================
-# AI SIGNAL (SMART MONEY)
-# =========================
 def ai_signal(call_change, put_change):
+    """AI Signal based on smart money movement"""
     if put_change > 0 and call_change < 0:
         return "STRONG BULLISH 🚀"
     elif call_change > 0 and put_change < 0:
@@ -169,71 +59,146 @@ def ai_signal(call_change, put_change):
         return "BEARISH 📉"
     return "SIDEWAYS ⚖️"
 
-
-# =========================
-# ROUTES
-# =========================
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
-@app.route("/data", methods=["POST"])
-def data():
+def get_option_data():
+    """Main function to fetch option chain data"""
     try:
-        body = request.json
-
-        token = body.get("token", "").strip()
-        client_id = body.get("client_id", "").strip()
-
-        if not token or not client_id:
-            return jsonify({"error": "Token & Client ID required"}), 400
-
-        # Step 1: Expiry
-        expiry = get_expiry(token, client_id)
-        if not expiry:
-            return jsonify({"error": "Expiry fetch failed"}), 500
-
-        # Step 2: Option Chain
-        raw = get_option_chain(token, client_id, expiry)
-        parsed = process_data(raw)
-
-        if not parsed:
-            return jsonify({"error": "No Data Found"}), 404
-
-        # Step 3: Calculations
-        total_call = sum(x["call_oi"] for x in parsed)
-        total_put = sum(x["put_oi"] for x in parsed)
-
-        total_call_change = sum(x["call_change"] for x in parsed)
-        total_put_change = sum(x["put_change"] for x in parsed)
-
-        pcr = round(total_put / total_call, 2) if total_call else 0
-
-        support, resistance = find_levels(parsed)
-
-        return jsonify({
+        # Get token from Firebase
+        token = fetch_token_from_firebase()
+        if not token:
+            return None, "No valid token found"
+        
+        # Get expiry
+        expiry_url = f"{BASE_URL}/optionchain/expirylist"
+        headers = {
+            "access-token": token,
+            "client-id": CLIENT_ID,
+            "Content-Type": "application/json"
+        }
+        payload = {"UnderlyingScrip": 13, "UnderlyingSeg": "IDX_I"}
+        
+        expiry_response = requests.post(expiry_url, headers=headers, json=payload, timeout=10)
+        expiry_data = expiry_response.json()
+        
+        if not expiry_data.get("data"):
+            return None, "No expiry data found"
+        
+        expiry = sorted(expiry_data["data"])[0]
+        
+        # Get option chain
+        option_url = f"{BASE_URL}/optionchain"
+        option_payload = {
+            "UnderlyingScrip": 13,
+            "UnderlyingSeg": "IDX_I",
+            "Expiry": expiry
+        }
+        
+        option_response = requests.post(option_url, headers=headers, json=option_payload, timeout=10)
+        option_data = option_response.json()
+        
+        # Process data
+        processed_data = []
+        oc = option_data.get("data", {}).get("oc", {})
+        
+        for strike_str, item in oc.items():
+            try:
+                strike = float(strike_str)
+                ce = item.get("ce", {})
+                pe = item.get("pe", {})
+                
+                call_oi = ce.get("oi", 0)
+                put_oi = pe.get("oi", 0)
+                call_prev = ce.get("previous_oi", 0)
+                put_prev = pe.get("previous_oi", 0)
+                
+                processed_data.append({
+                    "strike": strike,
+                    "call_oi": call_oi,
+                    "put_oi": put_oi,
+                    "call_change": call_oi - call_prev,
+                    "put_change": put_oi - put_prev
+                })
+            except:
+                continue
+        
+        processed_data.sort(key=lambda x: x["strike"])
+        
+        # Calculate metrics
+        total_call = sum(x["call_oi"] for x in processed_data)
+        total_put = sum(x["put_oi"] for x in processed_data)
+        total_call_change = sum(x["call_change"] for x in processed_data)
+        total_put_change = sum(x["put_change"] for x in processed_data)
+        pcr = round(total_put / total_call, 2) if total_call > 0 else 0
+        
+        # Calculate Max Pain
+        max_pain_value = None
+        if processed_data:
+            strikes = [x["strike"] for x in processed_data]
+            min_loss = float("inf")
+            for s in strikes:
+                loss = 0
+                for row in processed_data:
+                    loss += row["call_oi"] * max(0, s - row["strike"])
+                    loss += row["put_oi"] * max(0, row["strike"] - s)
+                if loss < min_loss:
+                    min_loss = loss
+                    max_pain_value = s
+        
+        # Calculate Support/Resistance
+        support = max(processed_data, key=lambda x: x["put_oi"])["strike"] if processed_data else None
+        resistance = max(processed_data, key=lambda x: x["call_oi"])["strike"] if processed_data else None
+        
+        # Generate signals
+        market_signal = get_signal(pcr)
+        smart_money_signal = ai_signal(total_call_change, total_put_change)
+        
+        return {
+            "success": True,
+            "expiry": expiry,
+            "total_call_oi": total_call,
+            "total_put_oi": total_put,
+            "total_call_change": total_call_change,
+            "total_put_change": total_put_change,
             "pcr": pcr,
-            "call_oi": total_call,
-            "put_oi": total_put,
-            "call_change_oi": total_call_change,
-            "put_change_oi": total_put_change,
-            "max_pain": max_pain(parsed),
-            "signal": get_signal(pcr),
-            "ai_signal": ai_signal(total_call_change, total_put_change),
+            "max_pain": max_pain_value,
             "support": support,
             "resistance": resistance,
-            "expiry": expiry,
-            "data": parsed[-15:]  # clean filtered strikes
-        })
-
+            "market_signal": market_signal,
+            "smart_money_signal": smart_money_signal,
+            "data": processed_data[-30:],  # Last 30 strikes
+            "timestamp": datetime.now().isoformat()
+        }, None
+        
     except Exception as e:
-        print("API Error:", e)
-        return jsonify({"error": "Internal Server Error"}), 500
+        logger.error(f"Error: {e}")
+        return None, str(e)
 
+@app.route("/")
+def index():
+    """Serve the dashboard"""
+    return render_template("index.html")
 
-# =========================
-# RUN
-# =========================
+@app.route("/api/market-data")
+def market_data():
+    """API endpoint for market data"""
+    data, error = get_option_data()
+    if error:
+        return jsonify({"success": False, "error": error}), 500
+    return jsonify(data)
+
+@app.route("/api/health")
+def health():
+    """Health check endpoint"""
+    token = fetch_token_from_firebase()
+    return jsonify({
+        "status": "healthy",
+        "token_exists": token is not None,
+        "timestamp": datetime.now().isoformat()
+    })
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    print("=" * 50)
+    print("🚀 Dhan API Server Started")
+    print(f"📍 URL: http://localhost:5000")
+    print(f"🔑 Client ID: {CLIENT_ID}")
+    print("=" * 50)
+    app.run(debug=True, port=10000, host="0.0.0.0")
